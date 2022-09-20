@@ -1,4 +1,4 @@
-package types
+package fun
 
 import "fmt"
 

@@ -8,7 +8,7 @@ func (seq Seq[A]) Contains(elem A) bool {
 }
 
 // Builds a new sequence from this sequence without any duplicate elements.
-func (seq Seq[T]) Distinct(slice []T) []T {
+func (seq Seq[T]) Distinct() Seq[T] {
 	panic("Not implemented")
 }
 
@@ -18,12 +18,12 @@ func (option Seq[A]) Exists(f func(A) bool) bool {
 }
 
 // Selects all elements of this sequence which satisfy a predicate.
-func (seq Seq[T]) Filter(f func(T) bool) []T {
+func (seq Seq[T]) Filter(f func(T) bool) Seq[T] {
 	panic("Not implemented")
 }
 
 // Selects all elements of this sequence which do not satisfy a predicate.
-func (seq Seq[T]) FilterNot(f func(T) bool) []T {
+func (seq Seq[T]) FilterNot(f func(T) bool) Seq[T] {
 	panic("Not implemented")
 }
 
@@ -38,7 +38,7 @@ func (seq Seq[T]) Find(f func(T) bool) (T, bool) {
 }
 
 // Builds a new sequence by applying a function to all elements of this sequence and using the elements of the resulting sequences.
-func (seq Seq[T]) FlatMap(f func(T) []T) []T {
+func (seq Seq[T]) FlatMap(f func(T) Seq[T]) Seq[T] {
 	panic("Not implemented")
 }
 
@@ -101,17 +101,12 @@ func (seq Seq[A]) NonEmpty() bool {
 	panic("Not implemented")
 }
 
-// Returns an underlying slice of this sequence
-func (seq Seq[A]) ToSlice() []A {
-	panic("Not implemented")
-}
-
 // Converts this sequence of pairs into two sequences of the first and second half of each pair.
-func UnZipSeq[A, B comparable](pair Seq[Tuple[A, B]]) Tuple[Seq[A], Seq[B]] {
+func UnZipSeq[A, B comparable](pair Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
 	panic("Not implemented")
 }
 
 // Returns a sequence formed from this sequence and another sequence by combining corresponding elements in pairs.
-func ZipSeq[A, B comparable](seq Seq[A], another Seq[B]) Seq[Tuple[A, B]] {
+func ZipSeq[A, B comparable](seq Seq[A], another Seq[B]) Seq[Tuple2[A, B]] {
 	panic("Not implemented")
 }

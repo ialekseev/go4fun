@@ -141,19 +141,14 @@ func TestToSeq(t *testing.T) {
 	assert.Nil(t, None[int]().ToSeq())
 }
 
-func TestToSlice(t *testing.T) {
-	assert.Equal(t, []int{5}, Some(5).ToSlice())
-	assert.Nil(t, None[int]().ToSlice())
-}
-
 func TestUnZipOption(t *testing.T) {
-	assert.Equal(t, NewTuple(Some(5), Some("abc")), UnZipOption(Some(NewTuple(5, "abc"))))
-	assert.Equal(t, NewTuple(None[int](), None[string]()), UnZipOption(None[Tuple[int, string]]()))
+	assert.Equal(t, NewTuple2(Some(5), Some("abc")), UnZipOption(Some(NewTuple2(5, "abc"))))
+	assert.Equal(t, NewTuple2(None[int](), None[string]()), UnZipOption(None[Tuple2[int, string]]()))
 }
 
 func TestZip(t *testing.T) {
-	assert.Equal(t, Some(NewTuple(5, "123")), Zip(Some(5), Some("123")))
-	assert.Equal(t, None[Tuple[int, string]](), Zip(Some(5), None[string]()))
-	assert.Equal(t, None[Tuple[int, string]](), Zip(None[int](), Some("123")))
-	assert.Equal(t, None[Tuple[int, string]](), Zip(None[int](), None[string]()))
+	assert.Equal(t, Some(NewTuple2(5, "123")), Zip(Some(5), Some("123")))
+	assert.Equal(t, None[Tuple2[int, string]](), Zip(Some(5), None[string]()))
+	assert.Equal(t, None[Tuple2[int, string]](), Zip(None[int](), Some("123")))
+	assert.Equal(t, None[Tuple2[int, string]](), Zip(None[int](), None[string]()))
 }

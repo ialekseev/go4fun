@@ -185,29 +185,20 @@ func (option Option[A]) ToSeq() Seq[A] {
 	}
 }
 
-// Returns a slice containing the Option's value if it is nonempty, or nil if the Option is empty.
-func (option Option[A]) ToSlice() []A {
-	if option.defined {
-		return []A{option.value}
-	} else {
-		return nil
-	}
-}
-
 // Converts an Option of a pair into an Option of the first element and an Option of the second element.
-func UnZipOption[A, B comparable](pair Option[Tuple[A, B]]) Tuple[Option[A], Option[B]] {
+func UnZipOption[A, B comparable](pair Option[Tuple2[A, B]]) Tuple2[Option[A], Option[B]] {
 	if pair.defined {
-		return NewTuple(Some(pair.value.a), Some(pair.value.b))
+		return NewTuple2(Some(pair.value.a), Some(pair.value.b))
 	} else {
-		return NewTuple(None[A](), None[B]())
+		return NewTuple2(None[A](), None[B]())
 	}
 }
 
 // Returns a Some formed from this Option and another Option by combining the corresponding elements in a pair. If either of the two Options is empty, None is returned.
-func Zip[A, B comparable](option Option[A], another Option[B]) Option[Tuple[A, B]] {
+func Zip[A, B comparable](option Option[A], another Option[B]) Option[Tuple2[A, B]] {
 	if option.defined && another.defined {
-		return Some(NewTuple(option.value, another.value))
+		return Some(NewTuple2(option.value, another.value))
 	} else {
-		return None[Tuple[A, B]]()
+		return None[Tuple2[A, B]]()
 	}
 }

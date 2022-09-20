@@ -1,6 +1,6 @@
 package types
 
-type Seq[A any] []A
+type Seq[A comparable] []A
 
 // Tests whether this sequence contains a given value as an element.
 func (seq Seq[A]) Contains(elem A) bool {
@@ -42,12 +42,12 @@ func (seq Seq[T]) FlatMap(f func(T) []T) []T {
 	panic("Not implemented")
 }
 
-func FlatMapSeq[A, B any](seq Seq[A], f func(A) Seq[B]) Seq[B] {
+func FlatMapSeq[A, B comparable](seq Seq[A], f func(A) Seq[B]) Seq[B] {
 	panic("Not implemented")
 }
 
-// Converts this sequence of sequences into a sequence formed by the elements of these sequences.
-func FlattenSeq[A any](seq Seq[Seq[A]]) Seq[A] {
+// Converts this slice of sequences into a sequence formed by the elements of these sequences.
+func FlattenSeq[A comparable](seq []Seq[A]) Seq[A] {
 	panic("Not implemented")
 }
 
@@ -57,7 +57,7 @@ func (seq Seq[A]) Fold(defaultValue A, f func(A) A) A {
 }
 
 // Applies a binary operator to a start value and all elements of this sequence.
-func foldSeq[A, B any](seq Seq[A], defaultValue B, f func(A) B) B {
+func foldSeq[A, B comparable](seq Seq[A], defaultValue B, f func(A) B) B {
 	panic("Not implemented")
 }
 
@@ -92,7 +92,7 @@ func (seq Seq[A]) Map(f func(A) A) A {
 }
 
 // Builds a new sequence by applying a function to all elements of this sequence.
-func MapSeq[A, B any](seq Seq[A], f func(A) B) Seq[B] {
+func MapSeq[A, B comparable](seq Seq[A], f func(A) B) Seq[B] {
 	panic("Not implemented")
 }
 
@@ -107,11 +107,11 @@ func (seq Seq[A]) ToSlice() []A {
 }
 
 // Converts this sequence of pairs into two sequences of the first and second half of each pair.
-func UnZipSeq[A, B any](pair Seq[Tuple[A, B]]) Tuple[Seq[A], Seq[B]] {
+func UnZipSeq[A, B comparable](pair Seq[Tuple[A, B]]) Tuple[Seq[A], Seq[B]] {
 	panic("Not implemented")
 }
 
 // Returns a sequence formed from this sequence and another sequence by combining corresponding elements in pairs.
-func ZipSeq[A, B any](seq Seq[A], another Seq[B]) Seq[Tuple[A, B]] {
+func ZipSeq[A, B comparable](seq Seq[A], another Seq[B]) Seq[Tuple[A, B]] {
 	panic("Not implemented")
 }

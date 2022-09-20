@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -69,12 +70,52 @@ func TestFold(t *testing.T) {
 }
 
 func TestFoldOption(t *testing.T) {
-	assert.Equal(t, "5", FoldOption(Some(5), "", func(v int) string { return "5" }))
-	assert.Equal(t, "", FoldOption(None[int](), "", func(v int) string { return "5" }))
+	assert.Equal(t, "5A", FoldOption(Some(5), "", func(v int) string { return fmt.Sprint(v) + "A" }))
+	assert.Equal(t, "", FoldOption(None[int](), "", func(v int) string { return fmt.Sprint(v) + "A" }))
 }
 
 func TestForAll(t *testing.T) {
 	assert.True(t, Some("abc").ForAll(func(s string) bool { return s == "abc" }))
 	assert.True(t, None[string]().ForAll(func(s string) bool { return s == "abc" }))
 	assert.False(t, Some("abc").ForAll(func(s string) bool { return s == "def" }))
+}
+
+func TestForeach(t *testing.T) {
+	//given
+	e := 0
+	//when
+	Some(5).Foreach(func(v int) { e = v })
+	//then
+	assert.Equal(t, 5, e)
+}
+
+func TestGet(t *testing.T) {
+	assert.Equal(t, "abc", Some("abc").Get())
+	assert.Panics(t, func() { None[string]().Get() })
+}
+
+func TestGetOrElse(t *testing.T) {
+	assert.Equal(t, "abc", Some("abc").GetOrElse(""))
+	assert.Equal(t, "", None[string]().GetOrElse(""))
+}
+
+func TestIsDefined(t *testing.T) {
+	assert.True(t, Some(5).IsDefined())
+	assert.False(t, None[int]().IsDefined())
+}
+
+func TestIsEmpty(t *testing.T) {
+	assert.True(t, None[int]().IsEmpty())
+	assert.False(t, Some(5).IsEmpty())
+
+}
+
+func TestMap(t *testing.T) {
+	assert.Equal(t, Some(6), Some(5).Map(func(v int) int { return v + 1 }))
+	assert.Equal(t, None[int](), None[int]().Map(func(v int) int { return v + 1 }))
+}
+
+func TestMapOption(t *testing.T) {
+	assert.Equal(t, Some("5A"), MapOption(Some(5), func(v int) string { return fmt.Sprint(v) + "A" }))
+	assert.Equal(t, None[string](), MapOption(None[int](), func(v int) string { return fmt.Sprint(v) + "A" }))
 }

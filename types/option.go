@@ -29,7 +29,7 @@ func (option Option[A]) Exists(p func(A) bool) bool {
 	return option.defined && p(option.value)
 }
 
-// Returns this Option if it is nonempty and applying the predicate p to this Option's value returns true. Otherwise, return None.
+// Returns this Option if it is nonempty and applying the predicate p to this Option's value returns true. Otherwise, returns None.
 func (option Option[A]) Filter(p func(A) bool) Option[A] {
 	if option.defined && p(option.value) {
 		return option
@@ -38,7 +38,7 @@ func (option Option[A]) Filter(p func(A) bool) Option[A] {
 	}
 }
 
-// Returns this Option if it is nonempty and applying the predicate p to this Option's value returns false. Otherwise, return None.
+// Returns this Option if it is nonempty and applying the predicate p to this Option's value returns false. Otherwise, returns None.
 func (option Option[A]) FilterNot(p func(A) bool) Option[A] {
 	if option.defined && !p(option.value) {
 		return option
@@ -101,39 +101,57 @@ func (option Option[A]) ForAll(p func(A) bool) bool {
 	return !option.defined || p(option.value)
 }
 
-// Apply the given procedure f to the Option's value, if it is nonempty. Otherwise, do nothing.
+// Applies the given procedure f to the Option's value, if it is nonempty. Otherwise, does nothing.
 func (option Option[A]) Foreach(f func(A)) {
-	panic("Not implemented")
+	if option.defined {
+		f(option.value)
+	}
 }
 
-// Evaluate and return alternate value if empty
-func (option Option[A]) GetOrElse(defaultValue A) Option[A] {
-	panic("Not implemented")
-}
-
-// Return value, panic if empty
+// Returns the Option's value if the Option is nonempty, otherwise panics.
 func (option Option[A]) Get() A {
-	panic("Not implemented")
+	if option.defined {
+		return option.value
+	} else {
+		panic("Trying to Get from None Option")
+	}
 }
 
-// True if not empty
+// Returns the Option's value if the Option is nonempty, otherwise returns defaultValue.
+func (option Option[A]) GetOrElse(defaultValue A) A {
+	if option.defined {
+		return option.value
+	} else {
+		return defaultValue
+	}
+}
+
+// Returns true if the Option is nonempty (has a value).
 func (option Option[A]) IsDefined() bool {
-	panic("Not implemented")
+	return option.defined
 }
 
-// True if empty
+// Returns true if the Option is empty (doesn't have a value).
 func (option Option[A]) IsEmpty() bool {
-	panic("Not implemented")
+	return !option.defined
 }
 
 // Returns a Some containing the result of applying f to this Option's value if this Option is nonempty. Otherwise return None.
-func (option Option[A]) Map(f func(A) A) A {
-	panic("Not implemented")
+func (option Option[A]) Map(f func(A) A) Option[A] {
+	if option.defined {
+		return Some(f(option.value))
+	} else {
+		return None[A]()
+	}
 }
 
 // Returns a Some containing the result of applying f to this Option's value if this Option is nonempty. Otherwise return None.
 func MapOption[A, B comparable](option Option[A], f func(A) B) Option[B] {
-	panic("Not implemented")
+	if option.defined {
+		return Some(f(option.value))
+	} else {
+		return None[B]()
+	}
 }
 
 // True if not empty

@@ -119,3 +119,41 @@ func TestMapOption(t *testing.T) {
 	assert.Equal(t, Some("5A"), MapOption(Some(5), func(v int) string { return fmt.Sprint(v) + "A" }))
 	assert.Equal(t, None[string](), MapOption(None[int](), func(v int) string { return fmt.Sprint(v) + "A" }))
 }
+
+func TestNonEmpty(t *testing.T) {
+	assert.True(t, Some(5).NonEmpty())
+	assert.False(t, None[int]().NonEmpty())
+}
+
+func TestOrElse(t *testing.T) {
+	assert.Equal(t, Some("abc"), Some("abc").OrElse(Some("def")))
+	assert.Equal(t, Some("def"), None[string]().OrElse(Some("def")))
+	assert.Equal(t, None[string](), None[string]().OrElse(None[string]()))
+}
+
+func TestString(t *testing.T) {
+	assert.Equal(t, "Some(5)", Some(5).String())
+	assert.Equal(t, "None", None[int]().String())
+}
+
+func TestToSeq(t *testing.T) {
+	assert.Equal(t, Seq[int]{5}, Some(5).ToSeq())
+	assert.Nil(t, None[int]().ToSeq())
+}
+
+func TestToSlice(t *testing.T) {
+	assert.Equal(t, []int{5}, Some(5).ToSlice())
+	assert.Nil(t, None[int]().ToSlice())
+}
+
+func TestUnZipOption(t *testing.T) {
+	assert.Equal(t, NewTuple(Some(5), Some("abc")), UnZipOption(Some(NewTuple(5, "abc"))))
+	assert.Equal(t, NewTuple(None[int](), None[string]()), UnZipOption(None[Tuple[int, string]]()))
+}
+
+func TestZip(t *testing.T) {
+	assert.Equal(t, Some(NewTuple(5, "123")), Zip(Some(5), Some("123")))
+	assert.Equal(t, None[Tuple[int, string]](), Zip(Some(5), None[string]()))
+	assert.Equal(t, None[Tuple[int, string]](), Zip(None[int](), Some("123")))
+	assert.Equal(t, None[Tuple[int, string]](), Zip(None[int](), None[string]()))
+}

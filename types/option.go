@@ -154,16 +154,21 @@ func MapOption[A, B comparable](option Option[A], f func(A) B) Option[B] {
 	}
 }
 
-// True if not empty
+// Returns true if the Option is nonempty (has a value).
 func (option Option[A]) NonEmpty() bool {
-	panic("Not implemented")
+	return option.defined
 }
 
-// Evaluate and return alternate optional value if empty
+// Returns this Option if it is nonempty, otherwise returns an alternative Option.
 func (option Option[A]) OrElse(alternative Option[A]) Option[A] {
-	panic("Not implemented")
+	if option.defined {
+		return option
+	} else {
+		return alternative
+	}
 }
 
+// A String representation of Option. E.g. Some(5) or None
 func (option Option[T]) String() string {
 	if option.defined {
 		return fmt.Sprintf("Some(%v)", option.value)
@@ -171,22 +176,38 @@ func (option Option[T]) String() string {
 	return "None"
 }
 
-// Returns a Sequence containing the Option's value if it is nonempty, or the empty list if the Option is empty.
+// Returns a Sequence containing the Option's value if it is nonempty, or nil if the Option is empty.
 func (option Option[A]) ToSeq() Seq[A] {
-	panic("Not implemented")
+	if option.defined {
+		return Seq[A]{option.value}
+	} else {
+		return nil
+	}
 }
 
-// Returns a slice containing the Option's value if it is nonempty, or the empty list if the Option is empty.
+// Returns a slice containing the Option's value if it is nonempty, or nil if the Option is empty.
 func (option Option[A]) ToSlice() []A {
-	panic("Not implemented")
+	if option.defined {
+		return []A{option.value}
+	} else {
+		return nil
+	}
 }
 
 // Converts an Option of a pair into an Option of the first element and an Option of the second element.
 func UnZipOption[A, B comparable](pair Option[Tuple[A, B]]) Tuple[Option[A], Option[B]] {
-	panic("Not implemented")
+	if pair.defined {
+		return NewTuple(Some(pair.value.a), Some(pair.value.b))
+	} else {
+		return NewTuple(None[A](), None[B]())
+	}
 }
 
 // Returns a Some formed from this Option and another Option by combining the corresponding elements in a pair. If either of the two Options is empty, None is returned.
 func Zip[A, B comparable](option Option[A], another Option[B]) Option[Tuple[A, B]] {
-	panic("Not implemented")
+	if option.defined && another.defined {
+		return Some(NewTuple(option.value, another.value))
+	} else {
+		return None[Tuple[A, B]]()
+	}
 }

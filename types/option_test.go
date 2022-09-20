@@ -62,3 +62,19 @@ func TestFlatten(t *testing.T) {
 	assert.Equal(t, Some(5), FlattenOption(Some(Some(5))))
 	assert.Equal(t, None[int](), FlattenOption(Some(None[int]())))
 }
+
+func TestFold(t *testing.T) {
+	assert.Equal(t, 6, Some(5).Fold(-1, func(v int) int { return v + 1 }))
+	assert.Equal(t, -1, None[int]().Fold(-1, func(v int) int { return v + 1 }))
+}
+
+func TestFoldOption(t *testing.T) {
+	assert.Equal(t, "5", FoldOption(Some(5), "", func(v int) string { return "5" }))
+	assert.Equal(t, "", FoldOption(None[int](), "", func(v int) string { return "5" }))
+}
+
+func TestForAll(t *testing.T) {
+	assert.True(t, Some("abc").ForAll(func(s string) bool { return s == "abc" }))
+	assert.True(t, None[string]().ForAll(func(s string) bool { return s == "abc" }))
+	assert.False(t, Some("abc").ForAll(func(s string) bool { return s == "def" }))
+}

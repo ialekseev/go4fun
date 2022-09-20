@@ -47,7 +47,7 @@ func (option Option[A]) FilterNot(p func(A) bool) Option[A] {
 	}
 }
 
-// Returns the result of applying f to this Option's value if this Option is nonempty.
+// Returns the result of applying f to this Option's value if this Option is nonempty (without changing Option value's type A).
 // Returns None if this Option is empty. Slightly different from map in that f is expected to return an Option (which could be None).
 func (option Option[A]) FlatMap(f func(A) Option[A]) Option[A] {
 	if option.defined {
@@ -57,7 +57,7 @@ func (option Option[A]) FlatMap(f func(A) Option[A]) Option[A] {
 	}
 }
 
-// Returns the result of applying f to this Option's value if this Option is nonempty.
+// Returns the result of applying f to this Option's value if this Option is nonempty (potentially, changing Option value's type A => B).
 // Returns None if this Option is empty. Slightly different from map in that f is expected to return an Option (which could be None).
 func FlatMapOption[A, B comparable](option Option[A], f func(A) Option[B]) Option[B] {
 	if option.defined {
@@ -76,19 +76,29 @@ func FlattenOption[A comparable](option Option[Option[A]]) Option[A] {
 	}
 }
 
-// Apply function on optional value, return default if empty
+// Returns the result of applying f to this Option's value if the Option is nonempty. Otherwise, returns defaultValue.
+// Resulting value's type A is the same as Option value's type A.
 func (option Option[A]) Fold(defaultValue A, f func(A) A) A {
-	panic("Not implemented")
+	if option.defined {
+		return f(option.value)
+	} else {
+		return defaultValue
+	}
 }
 
-// Apply function on optional value, return default if empty
-func foldOption[A, B comparable](option Option[A], defaultValue B, f func(A) B) B {
-	panic("Not implemented")
+// Returns the result of applying f to this Option's value if the Option is nonempty. Otherwise, returns defaultValue.
+// Resulting value's type B could, potentially, be different from the Option value's type A.
+func FoldOption[A, B comparable](option Option[A], defaultValue B, f func(A) B) B {
+	if option.defined {
+		return f(option.value)
+	} else {
+		return defaultValue
+	}
 }
 
-// Returns true if this Option is empty or the predicate f returns true when applied to this Option's value.
-func (option Option[A]) ForAll(f func(A) bool) bool {
-	panic("Not implemented")
+// Returns true if this Option is empty or the predicate p returns true when applied to this Option's value.
+func (option Option[A]) ForAll(p func(A) bool) bool {
+	return !option.defined || p(option.value)
 }
 
 // Apply the given procedure f to the Option's value, if it is nonempty. Otherwise, do nothing.

@@ -19,41 +19,61 @@ func None[A comparable]() Option[A] {
 	return Option[A]{}
 }
 
-// Tests whether the Option contains a given value as an element.
+// Returns true if this Option has an element that is equal (as determined by ==) to elem, false otherwise.
 func (option Option[A]) Contains(elem A) bool {
 	return option.defined && option.value == elem
 }
 
-// Returns true if this Option is nonempty and the predicate f returns true when applied to this Option's value. Otherwise, returns false.
-func (option Option[A]) Exists(f func(A) bool) bool {
-	panic("Not implemented")
+// Returns true if this Option is nonempty and the predicate p returns true when applied to this Option's value. Otherwise, returns false.
+func (option Option[A]) Exists(p func(A) bool) bool {
+	return option.defined && p(option.value)
 }
 
-// Returns this Option if it is nonempty and applying the predicate f to this Option's value returns true. Otherwise, return None.
-func (option Option[A]) Filter(f func(A) bool) Option[A] {
-	panic("Not implemented")
+// Returns this Option if it is nonempty and applying the predicate p to this Option's value returns true. Otherwise, return None.
+func (option Option[A]) Filter(p func(A) bool) Option[A] {
+	if option.defined && p(option.value) {
+		return option
+	} else {
+		return None[A]()
+	}
 }
 
-// Returns this Option if it is nonempty and applying the predicate f to this Option's value returns false. Otherwise, return None.
-func (option Option[A]) FilterNot(f func(A) bool) Option[A] {
-	panic("Not implemented")
+// Returns this Option if it is nonempty and applying the predicate p to this Option's value returns false. Otherwise, return None.
+func (option Option[A]) FilterNot(p func(A) bool) Option[A] {
+	if option.defined && !p(option.value) {
+		return option
+	} else {
+		return None[A]()
+	}
 }
 
 // Returns the result of applying f to this Option's value if this Option is nonempty.
 // Returns None if this Option is empty. Slightly different from map in that f is expected to return an Option (which could be None).
 func (option Option[A]) FlatMap(f func(A) Option[A]) Option[A] {
-	panic("Not implemented")
+	if option.defined {
+		return f(option.value)
+	} else {
+		return None[A]()
+	}
 }
 
 // Returns the result of applying f to this Option's value if this Option is nonempty.
 // Returns None if this Option is empty. Slightly different from map in that f is expected to return an Option (which could be None).
 func FlatMapOption[A, B comparable](option Option[A], f func(A) Option[B]) Option[B] {
-	panic("Not implemented")
+	if option.defined {
+		return f(option.value)
+	} else {
+		return None[B]()
+	}
 }
 
-// Returns the nested Option value if it is nonempty.
+// Returns the nested Option value if this Option is nonempty.
 func FlattenOption[A comparable](option Option[Option[A]]) Option[A] {
-	panic("Not implemented")
+	if option.defined {
+		return option.value
+	} else {
+		return None[A]()
+	}
 }
 
 // Apply function on optional value, return default if empty

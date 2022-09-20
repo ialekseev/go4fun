@@ -2,14 +2,31 @@ package fun
 
 type Seq[A comparable] []A
 
-// Tests whether this sequence contains a given value as an element.
-func (seq Seq[A]) Contains(elem A) bool {
-	panic("Not implemented")
+// Tests whether this Sequence contains a given value as an element.
+func (seq Seq[A]) Contains(value A) bool {
+	for _, e := range seq {
+		if e == value {
+			return true
+		}
+	}
+	return false
 }
 
 // Builds a new sequence from this sequence without any duplicate elements.
 func (seq Seq[T]) Distinct() Seq[T] {
-	panic("Not implemented")
+	if seq == nil {
+		return nil
+	}
+	m := make(map[T]struct{}, len(seq))
+	r := make(Seq[T], 0, len(seq))
+	for _, e := range seq {
+		_, found := m[e]
+		if !found {
+			r = append(r, e)
+		}
+		m[e] = struct{}{}
+	}
+	return r
 }
 
 // Tests whether a predicate holds for at least one element of this sequence.

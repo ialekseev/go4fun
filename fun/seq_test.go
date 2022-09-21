@@ -65,3 +65,27 @@ func TestSeqFlatMatSeq(t *testing.T) {
 	assert.Equal(t, Seq[string]{}, FlatMapSeq(Seq[int]{}, func(v int) Seq[string] { return Seq[string]{fmt.Sprint(v), fmt.Sprint(v)} }))
 	assert.Nil(t, FlatMapSeq(nilSeq[int](), func(v int) Seq[string] { return Seq[string]{fmt.Sprint(v), fmt.Sprint(v)} }))
 }
+
+func TestSeqFlattenSeq(t *testing.T) {
+	assert.Equal(t, Seq[int]{1, 2, 3, 4, 5}, FlattenSeq([]Seq[int]{{1, 2, 3}, {4, 5}}))
+	assert.Equal(t, Seq[int]{}, FlattenSeq([]Seq[int]{}))
+
+	var n []Seq[int] = nil
+	assert.Nil(t, FlattenSeq(n))
+}
+
+func TestSeqFold(t *testing.T) {
+	assert.Equal(t, 6, Seq[int]{1, 2, 3}.Fold(0, func(a1, a2 int) int { return a1 + a2 }))
+	assert.Equal(t, 0, Seq[int]{}.Fold(0, func(a1, a2 int) int { return a1 + a2 }))
+	assert.Equal(t, 0, nilSeq[int]().Fold(0, func(a1, a2 int) int { return a1 + a2 }))
+
+	assert.Equal(t, "hi!", Seq[string]{"h", "i", "!"}.Fold("", func(a1, a2 string) string { return a1 + a2 }))
+	assert.Equal(t, "", Seq[string]{}.Fold("", func(a1, a2 string) string { return a1 + a2 }))
+	assert.Equal(t, "", nilSeq[string]().Fold("", func(a1, a2 string) string { return a1 + a2 }))
+}
+
+func TestSeqFoldSeq(t *testing.T) {
+	assert.Equal(t, "0123", FoldSeq(Seq[int]{1, 2, 3}, "0", func(b string, a int) string { return b + fmt.Sprint(a) }))
+	assert.Equal(t, "0", FoldSeq(Seq[int]{}, "0", func(b string, a int) string { return b + fmt.Sprint(a) }))
+	assert.Equal(t, "0", FoldSeq(nilSeq[int](), "0", func(b string, a int) string { return b + fmt.Sprint(a) }))
+}

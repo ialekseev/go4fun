@@ -97,19 +97,32 @@ func FlatMapSeq[A, B comparable](seq Seq[A], f func(A) Seq[B]) Seq[B] {
 	return r
 }
 
-// Converts this slice of sequences into a sequence formed by the elements of these sequences.
+// Converts this slice of Sequences into a Sequence formed by the elements of these Sequences (returns a Sequence resulting from concatenating all element Sequences).
 func FlattenSeq[A comparable](seq []Seq[A]) Seq[A] {
-	panic("Not implemented")
+	if seq == nil {
+		return nil
+	}
+	r := make(Seq[A], 0, len(seq))
+	for _, subSeq := range seq {
+		for _, e1 := range subSeq {
+			r = append(r, e1)
+		}
+	}
+	return r
 }
 
-// Folds the elements of this sequence using the specified associative binary operator.
-func (seq Seq[A]) Fold(defaultValue A, f func(A) A) A {
-	panic("Not implemented")
+// Applies a binary operator op to a start value z (of type A) and all Sequence elements (of type A), going left to right. The accumulation result also keeps the same type A.
+func (seq Seq[A]) Fold(z A, op func(A, A) A) A {
+	return FoldSeq(seq, z, op)
 }
 
-// Applies a binary operator to a start value and all elements of this sequence.
-func foldSeq[A, B comparable](seq Seq[A], defaultValue B, f func(A) B) B {
-	panic("Not implemented")
+// Applies a binary operator op to a start value z (of type B) and all Sequence elements (of type A), going left to right. The accumulation result is of type B.
+func FoldSeq[A, B comparable](seq Seq[A], z B, op func(B, A) B) B {
+	r := z
+	for _, e := range seq {
+		r = op(r, e)
+	}
+	return r
 }
 
 // Tests whether a predicate holds for all elements of this sequence.

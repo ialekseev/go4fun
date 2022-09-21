@@ -32,6 +32,10 @@ func TestSeqDistinct(t *testing.T) {
 	assert.Nil(t, nilSeq[int]().Distinct())
 }
 
+func TestSeqEmptySeq(t *testing.T) {
+	assert.Equal(t, 0, EmptySeq[int](5).Length())
+}
+
 func TestSeqExists(t *testing.T) {
 	assert.True(t, Seq[int]{2, 4, 5}.Exists(func(a int) bool { return a > 4 }))
 	assert.False(t, Seq[int]{2, 4, 5}.Exists(func(a int) bool { return a > 5 }))
@@ -105,7 +109,7 @@ func TestSeqForAll(t *testing.T) {
 
 func TestSeqForeach(t *testing.T) {
 	//given
-	seq := make(Seq[int], 0, 5)
+	seq := EmptySeq[int](5)
 	//when
 	Seq[int]{1, 2, 3}.Foreach(func(a int) { seq = seq.Append(a) })
 	//then
@@ -122,4 +126,29 @@ func TestSeqHeadOption(t *testing.T) {
 	assert.Equal(t, Some("abc"), Seq[string]{"abc", "def", "ghi"}.HeadOption())
 	assert.Equal(t, None[string](), Seq[string]{}.HeadOption())
 	assert.Equal(t, None[string](), nilSeq[string]().HeadOption())
+}
+
+func TestSeqIsEmpty(t *testing.T) {
+	assert.True(t, Seq[int]{}.IsEmpty())
+	assert.True(t, nilSeq[int]().IsEmpty())
+	assert.False(t, Seq[int]{1, 2, 3}.IsEmpty())
+	assert.False(t, Seq[int]{1}.IsEmpty())
+}
+
+func TestSeqLength(t *testing.T) {
+	assert.Equal(t, 3, Seq[int]{1, 2, 3}.Length())
+	assert.Equal(t, 0, Seq[int]{}.Length())
+	assert.Equal(t, 0, nilSeq[int]().Length())
+}
+
+func TestSeqMap(t *testing.T) {
+	assert.Equal(t, Seq[string]{"a!", "b!", "c!"}, Seq[string]{"a", "b", "c"}.Map(func(a string) string { return a + "!" }))
+	assert.Equal(t, Seq[string]{}, Seq[string]{}.Map(func(a string) string { return a + "!" }))
+	assert.Nil(t, nilSeq[string]().Map(func(a string) string { return a + "!" }))
+}
+
+func TestSeqMapSeq(t *testing.T) {
+	assert.Equal(t, Seq[string]{"1", "2", "3"}, MapSeq(Seq[int]{1, 2, 3}, func(a int) string { return fmt.Sprint(a) }))
+	assert.Equal(t, Seq[string]{}, MapSeq(Seq[int]{}, func(a int) string { return fmt.Sprint(a) }))
+	assert.Nil(t, MapSeq(nilSeq[int](), func(a int) string { return fmt.Sprint(a) }))
 }

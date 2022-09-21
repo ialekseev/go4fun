@@ -9,16 +9,6 @@ type Option[A comparable] struct {
 	defined bool
 }
 
-// Wrap a value A in Some[A]. Some[A] represents an existing value of type A.
-func Some[A comparable](value A) Option[A] {
-	return Option[A]{value, true}
-}
-
-// None[A] represents a non-existing value of type A.
-func None[A comparable]() Option[A] {
-	return Option[A]{}
-}
-
 // Returns true if this Option has an element that is equal (as determined by ==) to elem, false otherwise.
 func (option Option[A]) Contains(elem A) bool {
 	return option.defined && option.value == elem
@@ -128,18 +118,23 @@ func (option Option[A]) IsEmpty() bool {
 	return !option.defined
 }
 
-// Returns a Some containing the result of applying f to this Option's value if this Option is nonempty. Otherwise return None.
+// Returns a Some containing the result of applying f to this Option's value if this Option is nonempty (without changing Option value's type A). Otherwise return None.
 func (option Option[A]) Map(f func(A) A) Option[A] {
 	return MapOption(option, f)
 }
 
-// Returns a Some containing the result of applying f to this Option's value if this Option is nonempty. Otherwise return None.
+// Returns a Some containing the result of applying f to this Option's value if this Option is nonempty (potentially, changing Option value's type A => B). Otherwise return None.
 func MapOption[A, B comparable](option Option[A], f func(A) B) Option[B] {
 	if option.defined {
 		return Some(f(option.value))
 	} else {
 		return None[B]()
 	}
+}
+
+// None[A] represents a non-existing value of type A.
+func None[A comparable]() Option[A] {
+	return Option[A]{}
 }
 
 // Returns true if the Option is nonempty (has a value).
@@ -154,6 +149,11 @@ func (option Option[A]) OrElse(alternative Option[A]) Option[A] {
 	} else {
 		return alternative
 	}
+}
+
+// Wrap a value A in Some[A]. Some[A] represents an existing value of type A.
+func Some[A comparable](value A) Option[A] {
+	return Option[A]{value, true}
 }
 
 // A String representation of Option. E.g. Some(5) or None

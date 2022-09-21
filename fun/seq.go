@@ -23,7 +23,7 @@ func (seq Seq[A]) Distinct() Seq[A] {
 		return nil
 	}
 	m := make(map[A]struct{}, seq.Length())
-	r := make(Seq[A], 0, seq.Length())
+	r := EmptySeq[A](seq.Length())
 	for _, e := range seq {
 		_, found := m[e]
 		if !found {
@@ -32,6 +32,11 @@ func (seq Seq[A]) Distinct() Seq[A] {
 		m[e] = struct{}{}
 	}
 	return r
+}
+
+// Creates a new empty Sequence of provided capacity. An underlying slice would have 0 length.
+func EmptySeq[A comparable](capacity int) Seq[A] {
+	return make(Seq[A], 0, capacity)
 }
 
 // Returns false if this Sequence is empty or nil, otherwise true if the given predicate p holds for some of the elements of this Sequence, otherwise false
@@ -49,7 +54,7 @@ func (seq Seq[A]) Filter(p func(A) bool) Seq[A] {
 	if seq == nil {
 		return nil
 	}
-	r := make(Seq[A], 0, seq.Length())
+	r := EmptySeq[A](seq.Length())
 	for _, e := range seq {
 		if p(e) {
 			r = r.Append(e)
@@ -63,7 +68,7 @@ func (seq Seq[A]) FilterNot(p func(A) bool) Seq[A] {
 	if seq == nil {
 		return nil
 	}
-	r := make(Seq[A], 0, seq.Length())
+	r := EmptySeq[A](seq.Length())
 	for _, e := range seq {
 		if !p(e) {
 			r = r.Append(e)
@@ -92,7 +97,7 @@ func FlatMapSeq[A, B comparable](seq Seq[A], f func(A) Seq[B]) Seq[B] {
 	if seq == nil {
 		return nil
 	}
-	r := make(Seq[B], 0, seq.Length())
+	r := EmptySeq[B](seq.Length())
 	for _, e := range seq {
 		subSeq := f(e)
 		for _, e1 := range subSeq {
@@ -107,7 +112,7 @@ func FlattenSeq[A comparable](seq []Seq[A]) Seq[A] {
 	if seq == nil {
 		return nil
 	}
-	r := make(Seq[A], 0, len(seq))
+	r := EmptySeq[A](len(seq))
 	for _, subSeq := range seq {
 		for _, e1 := range subSeq {
 			r = r.Append(e1)
@@ -164,9 +169,9 @@ func (seq Seq[A]) HeadOption() Option[A] {
 	}
 }
 
-// True if this sequence is empty
+// Returns true if the Sequence contain no elements, false otherwise.
 func (seq Seq[A]) IsEmpty() bool {
-	panic("Not implemented")
+	return seq.Length() == 0
 }
 
 // Returns the length of the Sequence. An alias for built-in len function.
@@ -174,14 +179,21 @@ func (seq Seq[A]) Length() int {
 	return len(seq)
 }
 
-// Builds a new sequence by applying a function to all elements of this sequence.
-func (seq Seq[A]) Map(f func(A) A) A {
-	panic("Not implemented")
+// Returns a new Sequence resulting from applying the given function f to each element of this Sequence and collecting the results (without changing type A of the Sequence elements).
+func (seq Seq[A]) Map(f func(A) A) Seq[A] {
+	return MapSeq(seq, f)
 }
 
-// Builds a new sequence by applying a function to all elements of this sequence.
+// Returns a new Sequence resulting from applying the given function f to each element of this Sequence and collecting the results (potentially, changing type A of the Sequence elements to B).
 func MapSeq[A, B comparable](seq Seq[A], f func(A) B) Seq[B] {
-	panic("Not implemented")
+	if seq == nil {
+		return nil
+	}
+	r := EmptySeq[B](seq.Length())
+	for _, e := range seq {
+		r = r.Append(f(e))
+	}
+	return r
 }
 
 // True if this sequence is not empty.

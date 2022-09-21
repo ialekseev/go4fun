@@ -7,22 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOptionSome(t *testing.T) {
-	//when
-	option := Some(5)
-	//then
-	assert.Equal(t, true, option.defined)
-	assert.Equal(t, 5, option.value)
-}
-
-func TestOptionNone(t *testing.T) {
-	//when
-	option := None[string]()
-	//then
-	assert.Equal(t, false, option.defined)
-	assert.Equal(t, "", option.value)
-}
-
 func TestOptionContains(t *testing.T) {
 	assert.True(t, Some(5).Contains(5))
 	assert.False(t, Some(5).Contains(6))
@@ -119,6 +103,14 @@ func TestOptionMapOption(t *testing.T) {
 	assert.Equal(t, None[string](), MapOption(None[int](), func(a int) string { return fmt.Sprint(a) + "A" }))
 }
 
+func TestOptionNone(t *testing.T) {
+	//when
+	option := None[string]()
+	//then
+	assert.Equal(t, false, option.defined)
+	assert.Equal(t, "", option.value)
+}
+
 func TestOptionNonEmpty(t *testing.T) {
 	assert.True(t, Some(5).NonEmpty())
 	assert.False(t, None[int]().NonEmpty())
@@ -128,6 +120,14 @@ func TestOptionOrElse(t *testing.T) {
 	assert.Equal(t, Some("abc"), Some("abc").OrElse(Some("def")))
 	assert.Equal(t, Some("def"), None[string]().OrElse(Some("def")))
 	assert.Equal(t, None[string](), None[string]().OrElse(None[string]()))
+}
+
+func TestOptionSome(t *testing.T) {
+	//when
+	option := Some(5)
+	//then
+	assert.Equal(t, true, option.defined)
+	assert.Equal(t, 5, option.value)
 }
 
 func TestOptionString(t *testing.T) {

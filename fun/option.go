@@ -50,11 +50,7 @@ func (option Option[A]) FilterNot(p func(A) bool) Option[A] {
 // Returns the result of applying f to this Option's value if this Option is nonempty (without changing Option value's type A).
 // Returns None if this Option is empty. Slightly different from map in that f is expected to return an Option (which could be None).
 func (option Option[A]) FlatMap(f func(A) Option[A]) Option[A] {
-	if option.defined {
-		return f(option.value)
-	} else {
-		return None[A]()
-	}
+	return FlatMapOption(option, f)
 }
 
 // Returns the result of applying f to this Option's value if this Option is nonempty (potentially, changing Option value's type A => B).
@@ -79,11 +75,7 @@ func FlattenOption[A comparable](option Option[Option[A]]) Option[A] {
 // Returns the result of applying f to this Option's value if the Option is nonempty. Otherwise, returns defaultValue.
 // Resulting value's type A is the same as Option value's type A.
 func (option Option[A]) Fold(defaultValue A, f func(A) A) A {
-	if option.defined {
-		return f(option.value)
-	} else {
-		return defaultValue
-	}
+	return FoldOption(option, defaultValue, f)
 }
 
 // Returns the result of applying f to this Option's value if the Option is nonempty. Otherwise, returns defaultValue.
@@ -138,11 +130,7 @@ func (option Option[A]) IsEmpty() bool {
 
 // Returns a Some containing the result of applying f to this Option's value if this Option is nonempty. Otherwise return None.
 func (option Option[A]) Map(f func(A) A) Option[A] {
-	if option.defined {
-		return Some(f(option.value))
-	} else {
-		return None[A]()
-	}
+	return MapOption(option, f)
 }
 
 // Returns a Some containing the result of applying f to this Option's value if this Option is nonempty. Otherwise return None.
@@ -195,7 +183,7 @@ func UnZipOption[A, B comparable](pair Option[Tuple2[A, B]]) Tuple2[Option[A], O
 }
 
 // Returns a Some formed from this Option and another Option by combining the corresponding elements in a pair. If either of the two Options is empty, None is returned.
-func Zip[A, B comparable](option Option[A], another Option[B]) Option[Tuple2[A, B]] {
+func ZipOption[A, B comparable](option Option[A], another Option[B]) Option[Tuple2[A, B]] {
 	if option.defined && another.defined {
 		return Some(NewTuple2(option.value, another.value))
 	} else {

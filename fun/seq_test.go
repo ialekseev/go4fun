@@ -1,6 +1,7 @@
 package fun
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,7 +19,7 @@ func TestSeqContains(t *testing.T) {
 	assert.False(t, nilSeq[int]().Contains(2))
 }
 
-func TestDistinct(t *testing.T) {
+func TestSeqDistinct(t *testing.T) {
 	assert.Equal(t, Seq[int]{1, 2, 3}, Seq[int]{1, 1, 2, 3, 3, 3}.Distinct())
 	assert.Equal(t, Seq[int]{1, 2, 3}, Seq[int]{1, 2, 3}.Distinct())
 	assert.Equal(t, Seq[int]{}, Seq[int]{}.Distinct())
@@ -46,9 +47,21 @@ func TestSeqFilterNot(t *testing.T) {
 	assert.Nil(t, nilSeq[int]().FilterNot(func(v int) bool { return v > 0 }))
 }
 
-func TestFind(t *testing.T) {
+func TestSeqFind(t *testing.T) {
 	assert.Equal(t, Some(3), Seq[int]{1, 2, 3, 4, 5}.Find(func(v int) bool { return v > 2 }))
 	assert.Equal(t, None[int](), Seq[int]{1, 2, 3, 4, 5}.Find(func(v int) bool { return v > 5 }))
 	assert.Equal(t, None[int](), Seq[int]{}.Find(func(v int) bool { return v > 0 }))
 	assert.Equal(t, None[int](), nilSeq[int]().Find(func(v int) bool { return v > 0 }))
+}
+
+func TestSeqFlatMap(t *testing.T) {
+	assert.Equal(t, Seq[int]{1, 1, 2, 2, 3, 3}, Seq[int]{1, 2, 3}.FlatMap(func(v int) Seq[int] { return Seq[int]{v, v} }))
+	assert.Equal(t, Seq[int]{}, Seq[int]{}.FlatMap(func(v int) Seq[int] { return Seq[int]{v, v} }))
+	assert.Nil(t, nilSeq[int]().FlatMap(func(v int) Seq[int] { return Seq[int]{v, v} }))
+}
+
+func TestSeqFlatMatSeq(t *testing.T) {
+	assert.Equal(t, Seq[string]{"1", "1", "2", "2", "3", "3"}, FlatMapSeq(Seq[int]{1, 2, 3}, func(v int) Seq[string] { return Seq[string]{fmt.Sprint(v), fmt.Sprint(v)} }))
+	assert.Equal(t, Seq[string]{}, FlatMapSeq(Seq[int]{}, func(v int) Seq[string] { return Seq[string]{fmt.Sprint(v), fmt.Sprint(v)} }))
+	assert.Nil(t, FlatMapSeq(nilSeq[int](), func(v int) Seq[string] { return Seq[string]{fmt.Sprint(v), fmt.Sprint(v)} }))
 }

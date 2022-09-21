@@ -2,23 +2,23 @@ package fun
 
 type Seq[A comparable] []A
 
-// Tests whether this Sequence contains a given value as an element.
-func (seq Seq[A]) Contains(value A) bool {
+// Returns true if this sequence contains an element that is equal (as determined by ==) to elem, false otherwise.
+func (seq Seq[A]) Contains(elem A) bool {
 	for _, e := range seq {
-		if e == value {
+		if e == elem {
 			return true
 		}
 	}
 	return false
 }
 
-// Builds a new Sequence from this Sequence without any duplicate elements.
-func (seq Seq[T]) Distinct() Seq[T] {
+// Returns a new Sequence from this Sequence without any duplicate elements.
+func (seq Seq[A]) Distinct() Seq[A] {
 	if seq == nil {
 		return nil
 	}
-	m := make(map[T]struct{}, len(seq))
-	r := make(Seq[T], 0, len(seq))
+	m := make(map[A]struct{}, len(seq))
+	r := make(Seq[A], 0, len(seq))
 	for _, e := range seq {
 		_, found := m[e]
 		if !found {
@@ -29,7 +29,7 @@ func (seq Seq[T]) Distinct() Seq[T] {
 	return r
 }
 
-// Tests whether a predicate p holds for at least one element of this Sequence.
+// Returns false if this Sequence is empty or nil, otherwise true if the given predicate p holds for some of the elements of this Sequence, otherwise false
 func (seq Seq[A]) Exists(p func(A) bool) bool {
 	for _, e := range seq {
 		if p(e) {
@@ -39,12 +39,12 @@ func (seq Seq[A]) Exists(p func(A) bool) bool {
 	return false
 }
 
-// Selects all elements of this Sequence which satisfy a predicate.
-func (seq Seq[T]) Filter(p func(T) bool) Seq[T] {
+// Returns a new Sequence consisting of all elements of this Sequence that satisfy the given predicate p. The order of the elements is preserved.
+func (seq Seq[A]) Filter(p func(A) bool) Seq[A] {
 	if seq == nil {
 		return nil
 	}
-	r := make(Seq[T], 0, len(seq))
+	r := make(Seq[A], 0, len(seq))
 	for _, e := range seq {
 		if p(e) {
 			r = append(r, e)
@@ -53,12 +53,12 @@ func (seq Seq[T]) Filter(p func(T) bool) Seq[T] {
 	return r
 }
 
-// Selects all elements of this sequence which do not satisfy a predicate.
-func (seq Seq[T]) FilterNot(p func(T) bool) Seq[T] {
+// Returns a new Sequence consisting of all elements of this Sequence that do not satisfy the given predicate p. The order of the elements is preserved.
+func (seq Seq[A]) FilterNot(p func(A) bool) Seq[A] {
 	if seq == nil {
 		return nil
 	}
-	r := make(Seq[T], 0, len(seq))
+	r := make(Seq[A], 0, len(seq))
 	for _, e := range seq {
 		if !p(e) {
 			r = append(r, e)
@@ -67,23 +67,34 @@ func (seq Seq[T]) FilterNot(p func(T) bool) Seq[T] {
 	return r
 }
 
-// Finds the first element of the sequence satisfying a predicate, if any.
-func (seq Seq[T]) Find(f func(T) bool) Option[T] {
+// Finds the first element of the Sequence satisfying a predicate, if any. Returns an option value containing the first element in the Sequence that satisfies p, or None if none exists.
+func (seq Seq[A]) Find(p func(A) bool) Option[A] {
 	for _, e := range seq {
-		if f(e) {
+		if p(e) {
 			return Some(e)
 		}
 	}
-	return None[T]()
+	return None[A]()
 }
 
-// Builds a new sequence by applying a function to all elements of this sequence and using the elements of the resulting sequences.
-func (seq Seq[T]) FlatMap(f func(T) Seq[T]) Seq[T] {
-	panic("Not implemented")
+// Returns a new Sequence resulting from applying the given function (f: A => Seq[A]) to each element of this Sequence and then flattening results back to Seq[A]. The original Sequence type A doesn't change.
+func (seq Seq[A]) FlatMap(f func(A) Seq[A]) Seq[A] {
+	return FlatMapSeq(seq, f)
 }
 
+// Returns a new Sequence resulting from applying the given function (f: A => Seq[B]) to each element of this Sequence and then flattening results to Seq[B]. The original Sequence type A could change to B.
 func FlatMapSeq[A, B comparable](seq Seq[A], f func(A) Seq[B]) Seq[B] {
-	panic("Not implemented")
+	if seq == nil {
+		return nil
+	}
+	r := make(Seq[B], 0, len(seq))
+	for _, e := range seq {
+		subSeq := f(e)
+		for _, e1 := range subSeq {
+			r = append(r, e1)
+		}
+	}
+	return r
 }
 
 // Converts this slice of sequences into a sequence formed by the elements of these sequences.

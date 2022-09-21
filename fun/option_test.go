@@ -141,12 +141,12 @@ func TestOptionToSeq(t *testing.T) {
 }
 
 func TestOptionUnZipOption(t *testing.T) {
-	assert.Equal(t, NewTuple2(Some(5), Some("abc")), UnZipOption(Some(NewTuple2(5, "abc"))))
-	assert.Equal(t, NewTuple2(None[int](), None[string]()), UnZipOption(None[Tuple2[int, string]]()))
+	assert.Equal(t, Tup2(Some(5), Some("abc")), UnZipOption(Some(Tup2(5, "abc"))))
+	assert.Equal(t, Tup2(None[int](), None[string]()), UnZipOption(None[Tuple2[int, string]]()))
 }
 
 func TestOptionZipOption(t *testing.T) {
-	assert.Equal(t, Some(NewTuple2(5, "123")), ZipOption(Some(5), Some("123")))
+	assert.Equal(t, Some(Tup2(5, "123")), ZipOption(Some(5), Some("123")))
 	assert.Equal(t, None[Tuple2[int, string]](), ZipOption(Some(5), None[string]()))
 	assert.Equal(t, None[Tuple2[int, string]](), ZipOption(None[int](), Some("123")))
 	assert.Equal(t, None[Tuple2[int, string]](), ZipOption(None[int](), None[string]()))

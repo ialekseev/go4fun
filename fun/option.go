@@ -176,16 +176,16 @@ func (option Option[A]) ToSeq() Seq[A] {
 // Converts an Option of a Tuple into a Tuple of 2 Options.
 func UnZipOption[A, B comparable](pair Option[Tuple2[A, B]]) Tuple2[Option[A], Option[B]] {
 	if pair.defined {
-		return NewTuple2(Some(pair.value.a), Some(pair.value.b))
+		return Tup2(Some(pair.value.a), Some(pair.value.b))
 	} else {
-		return NewTuple2(None[A](), None[B]())
+		return Tup2(None[A](), None[B]())
 	}
 }
 
 // Returns a Some formed from this Option and another Option by combining the corresponding elements in a Tuple. If either of the two Options is empty, None is returned.
 func ZipOption[A, B comparable](option Option[A], another Option[B]) Option[Tuple2[A, B]] {
 	if option.defined && another.defined {
-		return Some(NewTuple2(option.value, another.value))
+		return Some(Tup2(option.value, another.value))
 	} else {
 		return None[Tuple2[A, B]]()
 	}

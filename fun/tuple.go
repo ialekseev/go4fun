@@ -17,15 +17,15 @@ type Tuple3[A, B, C any] struct {
 	c C
 }
 
-func NewTuple1[A any](a A) Tuple1[A] {
+func Tup1[A any](a A) Tuple1[A] {
 	return Tuple1[A]{a}
 }
 
-func NewTuple2[A, B any](a A, b B) Tuple2[A, B] {
+func Tup2[A, B any](a A, b B) Tuple2[A, B] {
 	return Tuple2[A, B]{a, b}
 }
 
-func NewTuple3[A, B, C any](a A, b B, c C) Tuple3[A, B, C] {
+func Tup3[A, B, C any](a A, b B, c C) Tuple3[A, B, C] {
 	return Tuple3[A, B, C]{a, b, c}
 }
 

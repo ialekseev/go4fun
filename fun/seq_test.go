@@ -161,15 +161,15 @@ func TestSeqNonEmpty(t *testing.T) {
 }
 
 func TestSeqUnZipSeq(t *testing.T) {
-	assert.Equal(t, NewTuple2(Seq[int]{1, 2, 3}, Seq[string]{"a", "b", "c"}), UnZipSeq(Seq[Tuple2[int, string]]{NewTuple2(1, "a"), NewTuple2(2, "b"), NewTuple2(3, "c")}))
-	assert.Equal(t, NewTuple2(Seq[int]{}, Seq[string]{}), UnZipSeq(Seq[Tuple2[int, string]]{}))
-	assert.Equal(t, NewTuple2(Seq[int]{}, Seq[string]{}), UnZipSeq(nilSeq[Tuple2[int, string]]()))
+	assert.Equal(t, Tup2(Seq[int]{1, 2, 3}, Seq[string]{"a", "b", "c"}), UnZipSeq(Seq[Tuple2[int, string]]{Tup2(1, "a"), Tup2(2, "b"), Tup2(3, "c")}))
+	assert.Equal(t, Tup2(Seq[int]{}, Seq[string]{}), UnZipSeq(Seq[Tuple2[int, string]]{}))
+	assert.Equal(t, Tup2(Seq[int]{}, Seq[string]{}), UnZipSeq(nilSeq[Tuple2[int, string]]()))
 }
 
 func TestSeqZipSeq(t *testing.T) {
-	assert.Equal(t, Seq[Tuple2[int, string]]{NewTuple2(1, "a"), NewTuple2(2, "b"), NewTuple2(3, "c")}, ZipSeq(Seq[int]{1, 2, 3}, Seq[string]{"a", "b", "c"}))
-	assert.Equal(t, Seq[Tuple2[int, string]]{NewTuple2(1, "a"), NewTuple2(2, "b")}, ZipSeq(Seq[int]{1, 2}, Seq[string]{"a", "b", "c"}))
-	assert.Equal(t, Seq[Tuple2[int, string]]{NewTuple2(1, "a"), NewTuple2(2, "b")}, ZipSeq(Seq[int]{1, 2, 3}, Seq[string]{"a", "b"}))
+	assert.Equal(t, Seq[Tuple2[int, string]]{Tup2(1, "a"), Tup2(2, "b"), Tup2(3, "c")}, ZipSeq(Seq[int]{1, 2, 3}, Seq[string]{"a", "b", "c"}))
+	assert.Equal(t, Seq[Tuple2[int, string]]{Tup2(1, "a"), Tup2(2, "b")}, ZipSeq(Seq[int]{1, 2}, Seq[string]{"a", "b", "c"}))
+	assert.Equal(t, Seq[Tuple2[int, string]]{Tup2(1, "a"), Tup2(2, "b")}, ZipSeq(Seq[int]{1, 2, 3}, Seq[string]{"a", "b"}))
 
 	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(Seq[int]{1, 2, 3}, Seq[string]{}))
 	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(Seq[int]{}, Seq[string]{"a", "b", "c"}))

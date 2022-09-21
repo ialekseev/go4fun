@@ -209,7 +209,7 @@ func UnZipSeq[A, B comparable](seq Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
 		seqA = seqA.Append(e.a)
 		seqB = seqB.Append(e.b)
 	}
-	return NewTuple2(seqA, seqB)
+	return Tup2(seqA, seqB)
 }
 
 // Returns a new Sequence formed from this Sequence and another Sequence by combining corresponding elements in Tuples. If one of the two collections is longer than the other, its remaining elements are ignored.
@@ -220,7 +220,7 @@ func ZipSeq[A, B comparable](seq Seq[A], another Seq[B]) Seq[Tuple2[A, B]] {
 	}
 	r := EmptySeq[Tuple2[A, B]](minLen)
 	for i := 0; i < minLen; i++ {
-		r = r.Append(NewTuple2(seq[i], another[i]))
+		r = r.Append(Tup2(seq[i], another[i]))
 	}
 	return r
 }

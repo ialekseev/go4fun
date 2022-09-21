@@ -24,3 +24,31 @@ func TestDistinct(t *testing.T) {
 	assert.Equal(t, Seq[int]{}, Seq[int]{}.Distinct())
 	assert.Nil(t, nilSeq[int]().Distinct())
 }
+
+func TestSeqExists(t *testing.T) {
+	assert.True(t, Seq[int]{2, 4, 5}.Exists(func(v int) bool { return v > 4 }))
+	assert.False(t, Seq[int]{2, 4, 5}.Exists(func(v int) bool { return v > 5 }))
+	assert.False(t, Seq[int]{}.Exists(func(v int) bool { return v > 0 }))
+	assert.False(t, nilSeq[int]().Exists(func(v int) bool { return v > 0 }))
+}
+
+func TestSeqFilter(t *testing.T) {
+	assert.Equal(t, Seq[int]{2, 4, 6}, Seq[int]{2, 3, 4, 5, 6}.Filter(func(v int) bool { return v%2 == 0 }))
+	assert.Equal(t, Seq[int]{}, Seq[int]{2, 3, 4, 5, 6}.Filter(func(v int) bool { return v > 6 }))
+	assert.Equal(t, Seq[int]{}, Seq[int]{}.Filter(func(v int) bool { return v > 0 }))
+	assert.Nil(t, nilSeq[int]().Filter(func(v int) bool { return v > 0 }))
+}
+
+func TestSeqFilterNot(t *testing.T) {
+	assert.Equal(t, Seq[int]{3, 5}, Seq[int]{2, 3, 4, 5, 6}.FilterNot(func(v int) bool { return v%2 == 0 }))
+	assert.Equal(t, Seq[int]{}, Seq[int]{2, 3, 4, 5, 6}.FilterNot(func(v int) bool { return v >= 2 }))
+	assert.Equal(t, Seq[int]{}, Seq[int]{}.FilterNot(func(v int) bool { return v > 0 }))
+	assert.Nil(t, nilSeq[int]().FilterNot(func(v int) bool { return v > 0 }))
+}
+
+func TestFind(t *testing.T) {
+	assert.Equal(t, Some(3), Seq[int]{1, 2, 3, 4, 5}.Find(func(v int) bool { return v > 2 }))
+	assert.Equal(t, None[int](), Seq[int]{1, 2, 3, 4, 5}.Find(func(v int) bool { return v > 5 }))
+	assert.Equal(t, None[int](), Seq[int]{}.Find(func(v int) bool { return v > 0 }))
+	assert.Equal(t, None[int](), nilSeq[int]().Find(func(v int) bool { return v > 0 }))
+}

@@ -12,7 +12,7 @@ func (seq Seq[A]) Contains(value A) bool {
 	return false
 }
 
-// Builds a new sequence from this sequence without any duplicate elements.
+// Builds a new Sequence from this Sequence without any duplicate elements.
 func (seq Seq[T]) Distinct() Seq[T] {
 	if seq == nil {
 		return nil
@@ -29,29 +29,52 @@ func (seq Seq[T]) Distinct() Seq[T] {
 	return r
 }
 
-// Tests whether a predicate holds for at least one element of this sequence.
-func (option Seq[A]) Exists(f func(A) bool) bool {
-	panic("Not implemented")
+// Tests whether a predicate p holds for at least one element of this Sequence.
+func (seq Seq[A]) Exists(p func(A) bool) bool {
+	for _, e := range seq {
+		if p(e) {
+			return true
+		}
+	}
+	return false
 }
 
-// Selects all elements of this sequence which satisfy a predicate.
-func (seq Seq[T]) Filter(f func(T) bool) Seq[T] {
-	panic("Not implemented")
+// Selects all elements of this Sequence which satisfy a predicate.
+func (seq Seq[T]) Filter(p func(T) bool) Seq[T] {
+	if seq == nil {
+		return nil
+	}
+	r := make(Seq[T], 0, len(seq))
+	for _, e := range seq {
+		if p(e) {
+			r = append(r, e)
+		}
+	}
+	return r
 }
 
 // Selects all elements of this sequence which do not satisfy a predicate.
-func (seq Seq[T]) FilterNot(f func(T) bool) Seq[T] {
-	panic("Not implemented")
+func (seq Seq[T]) FilterNot(p func(T) bool) Seq[T] {
+	if seq == nil {
+		return nil
+	}
+	r := make(Seq[T], 0, len(seq))
+	for _, e := range seq {
+		if !p(e) {
+			r = append(r, e)
+		}
+	}
+	return r
 }
 
 // Finds the first element of the sequence satisfying a predicate, if any.
-func (seq Seq[T]) Find(f func(T) bool) (T, bool) {
+func (seq Seq[T]) Find(f func(T) bool) Option[T] {
 	for _, e := range seq {
 		if f(e) {
-			return e, true
+			return Some(e)
 		}
 	}
-	return *new(T), false
+	return None[T]()
 }
 
 // Builds a new sequence by applying a function to all elements of this sequence and using the elements of the resulting sequences.

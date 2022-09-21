@@ -157,7 +157,7 @@ func (option Option[A]) OrElse(alternative Option[A]) Option[A] {
 }
 
 // A String representation of Option. E.g. Some(5) or None
-func (option Option[T]) String() string {
+func (option Option[A]) String() string {
 	if option.defined {
 		return fmt.Sprintf("Some(%v)", option.value)
 	}

@@ -12,6 +12,12 @@ func nilSeq[T comparable]() Seq[T] {
 	return n
 }
 
+func TestSeqAppend(t *testing.T) {
+	assert.Equal(t, Seq[int]{1, 2, 3}, Seq[int]{1, 2}.Append(3))
+	assert.Equal(t, Seq[int]{1}, Seq[int]{}.Append(1))
+	assert.Equal(t, Seq[int]{1}, nilSeq[int]().Append(1))
+}
+
 func TestSeqContains(t *testing.T) {
 	assert.True(t, Seq[int]{1, 2, 5}.Contains(2))
 	assert.False(t, Seq[int]{1, 2, 5}.Contains(6))
@@ -27,43 +33,43 @@ func TestSeqDistinct(t *testing.T) {
 }
 
 func TestSeqExists(t *testing.T) {
-	assert.True(t, Seq[int]{2, 4, 5}.Exists(func(v int) bool { return v > 4 }))
-	assert.False(t, Seq[int]{2, 4, 5}.Exists(func(v int) bool { return v > 5 }))
-	assert.False(t, Seq[int]{}.Exists(func(v int) bool { return v > 0 }))
-	assert.False(t, nilSeq[int]().Exists(func(v int) bool { return v > 0 }))
+	assert.True(t, Seq[int]{2, 4, 5}.Exists(func(a int) bool { return a > 4 }))
+	assert.False(t, Seq[int]{2, 4, 5}.Exists(func(a int) bool { return a > 5 }))
+	assert.False(t, Seq[int]{}.Exists(func(a int) bool { return a > 0 }))
+	assert.False(t, nilSeq[int]().Exists(func(a int) bool { return a > 0 }))
 }
 
 func TestSeqFilter(t *testing.T) {
-	assert.Equal(t, Seq[int]{2, 4, 6}, Seq[int]{2, 3, 4, 5, 6}.Filter(func(v int) bool { return v%2 == 0 }))
-	assert.Equal(t, Seq[int]{}, Seq[int]{2, 3, 4, 5, 6}.Filter(func(v int) bool { return v > 6 }))
-	assert.Equal(t, Seq[int]{}, Seq[int]{}.Filter(func(v int) bool { return v > 0 }))
-	assert.Nil(t, nilSeq[int]().Filter(func(v int) bool { return v > 0 }))
+	assert.Equal(t, Seq[int]{2, 4, 6}, Seq[int]{2, 3, 4, 5, 6}.Filter(func(a int) bool { return a%2 == 0 }))
+	assert.Equal(t, Seq[int]{}, Seq[int]{2, 3, 4, 5, 6}.Filter(func(a int) bool { return a > 6 }))
+	assert.Equal(t, Seq[int]{}, Seq[int]{}.Filter(func(a int) bool { return a > 0 }))
+	assert.Nil(t, nilSeq[int]().Filter(func(a int) bool { return a > 0 }))
 }
 
 func TestSeqFilterNot(t *testing.T) {
-	assert.Equal(t, Seq[int]{3, 5}, Seq[int]{2, 3, 4, 5, 6}.FilterNot(func(v int) bool { return v%2 == 0 }))
-	assert.Equal(t, Seq[int]{}, Seq[int]{2, 3, 4, 5, 6}.FilterNot(func(v int) bool { return v >= 2 }))
-	assert.Equal(t, Seq[int]{}, Seq[int]{}.FilterNot(func(v int) bool { return v > 0 }))
-	assert.Nil(t, nilSeq[int]().FilterNot(func(v int) bool { return v > 0 }))
+	assert.Equal(t, Seq[int]{3, 5}, Seq[int]{2, 3, 4, 5, 6}.FilterNot(func(a int) bool { return a%2 == 0 }))
+	assert.Equal(t, Seq[int]{}, Seq[int]{2, 3, 4, 5, 6}.FilterNot(func(a int) bool { return a >= 2 }))
+	assert.Equal(t, Seq[int]{}, Seq[int]{}.FilterNot(func(a int) bool { return a > 0 }))
+	assert.Nil(t, nilSeq[int]().FilterNot(func(a int) bool { return a > 0 }))
 }
 
 func TestSeqFind(t *testing.T) {
-	assert.Equal(t, Some(3), Seq[int]{1, 2, 3, 4, 5}.Find(func(v int) bool { return v > 2 }))
-	assert.Equal(t, None[int](), Seq[int]{1, 2, 3, 4, 5}.Find(func(v int) bool { return v > 5 }))
-	assert.Equal(t, None[int](), Seq[int]{}.Find(func(v int) bool { return v > 0 }))
-	assert.Equal(t, None[int](), nilSeq[int]().Find(func(v int) bool { return v > 0 }))
+	assert.Equal(t, Some(3), Seq[int]{1, 2, 3, 4, 5}.Find(func(a int) bool { return a > 2 }))
+	assert.Equal(t, None[int](), Seq[int]{1, 2, 3, 4, 5}.Find(func(a int) bool { return a > 5 }))
+	assert.Equal(t, None[int](), Seq[int]{}.Find(func(a int) bool { return a > 0 }))
+	assert.Equal(t, None[int](), nilSeq[int]().Find(func(a int) bool { return a > 0 }))
 }
 
 func TestSeqFlatMap(t *testing.T) {
-	assert.Equal(t, Seq[int]{1, 1, 2, 2, 3, 3}, Seq[int]{1, 2, 3}.FlatMap(func(v int) Seq[int] { return Seq[int]{v, v} }))
-	assert.Equal(t, Seq[int]{}, Seq[int]{}.FlatMap(func(v int) Seq[int] { return Seq[int]{v, v} }))
-	assert.Nil(t, nilSeq[int]().FlatMap(func(v int) Seq[int] { return Seq[int]{v, v} }))
+	assert.Equal(t, Seq[int]{1, 1, 2, 2, 3, 3}, Seq[int]{1, 2, 3}.FlatMap(func(a int) Seq[int] { return Seq[int]{a, a} }))
+	assert.Equal(t, Seq[int]{}, Seq[int]{}.FlatMap(func(a int) Seq[int] { return Seq[int]{a, a} }))
+	assert.Nil(t, nilSeq[int]().FlatMap(func(a int) Seq[int] { return Seq[int]{a, a} }))
 }
 
 func TestSeqFlatMatSeq(t *testing.T) {
-	assert.Equal(t, Seq[string]{"1", "1", "2", "2", "3", "3"}, FlatMapSeq(Seq[int]{1, 2, 3}, func(v int) Seq[string] { return Seq[string]{fmt.Sprint(v), fmt.Sprint(v)} }))
-	assert.Equal(t, Seq[string]{}, FlatMapSeq(Seq[int]{}, func(v int) Seq[string] { return Seq[string]{fmt.Sprint(v), fmt.Sprint(v)} }))
-	assert.Nil(t, FlatMapSeq(nilSeq[int](), func(v int) Seq[string] { return Seq[string]{fmt.Sprint(v), fmt.Sprint(v)} }))
+	assert.Equal(t, Seq[string]{"1", "1", "2", "2", "3", "3"}, FlatMapSeq(Seq[int]{1, 2, 3}, func(a int) Seq[string] { return Seq[string]{fmt.Sprint(a), fmt.Sprint(a)} }))
+	assert.Equal(t, Seq[string]{}, FlatMapSeq(Seq[int]{}, func(a int) Seq[string] { return Seq[string]{fmt.Sprint(a), fmt.Sprint(a)} }))
+	assert.Nil(t, FlatMapSeq(nilSeq[int](), func(a int) Seq[string] { return Seq[string]{fmt.Sprint(a), fmt.Sprint(a)} }))
 }
 
 func TestSeqFlattenSeq(t *testing.T) {
@@ -88,4 +94,32 @@ func TestSeqFoldSeq(t *testing.T) {
 	assert.Equal(t, "0123", FoldSeq(Seq[int]{1, 2, 3}, "0", func(b string, a int) string { return b + fmt.Sprint(a) }))
 	assert.Equal(t, "0", FoldSeq(Seq[int]{}, "0", func(b string, a int) string { return b + fmt.Sprint(a) }))
 	assert.Equal(t, "0", FoldSeq(nilSeq[int](), "0", func(b string, a int) string { return b + fmt.Sprint(a) }))
+}
+
+func TestSeqForAll(t *testing.T) {
+	assert.True(t, Seq[int]{2, 4, 6, 8}.ForAll(func(a int) bool { return a%2 == 0 }))
+	assert.True(t, Seq[int]{}.ForAll(func(a int) bool { return a%2 == 0 }))
+	assert.True(t, nilSeq[int]().ForAll(func(a int) bool { return a%2 == 0 }))
+	assert.False(t, Seq[int]{3, 5, 6, 8}.ForAll(func(a int) bool { return a%2 == 0 }))
+}
+
+func TestSeqForeach(t *testing.T) {
+	//given
+	seq := make(Seq[int], 0, 5)
+	//when
+	Seq[int]{1, 2, 3}.Foreach(func(a int) { seq = seq.Append(a) })
+	//then
+	assert.Equal(t, Seq[int]{1, 2, 3}, seq)
+}
+
+func TestSeqHead(t *testing.T) {
+	assert.Equal(t, "abc", Seq[string]{"abc", "def", "ghi"}.Head())
+	assert.Panics(t, func() { Seq[string]{}.Head() })
+	assert.Panics(t, func() { nilSeq[string]().Head() })
+}
+
+func TestSeqHeadOption(t *testing.T) {
+	assert.Equal(t, Some("abc"), Seq[string]{"abc", "def", "ghi"}.HeadOption())
+	assert.Equal(t, None[string](), Seq[string]{}.HeadOption())
+	assert.Equal(t, None[string](), nilSeq[string]().HeadOption())
 }

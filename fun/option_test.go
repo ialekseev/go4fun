@@ -30,33 +30,33 @@ func TestOptionContains(t *testing.T) {
 }
 
 func TestOptionExists(t *testing.T) {
-	assert.True(t, Some(5).Exists(func(v int) bool { return v < 6 }))
-	assert.False(t, Some(5).Exists(func(v int) bool { return v < 5 }))
-	assert.False(t, None[int]().Exists(func(v int) bool { return v == 5 }))
+	assert.True(t, Some(5).Exists(func(a int) bool { return a < 6 }))
+	assert.False(t, Some(5).Exists(func(a int) bool { return a < 5 }))
+	assert.False(t, None[int]().Exists(func(a int) bool { return a == 5 }))
 }
 
 func TestOptionFilter(t *testing.T) {
-	assert.Equal(t, Some(5), Some(5).Filter(func(v int) bool { return v < 6 }))
-	assert.Equal(t, None[int](), Some(5).Filter(func(v int) bool { return v < 5 }))
-	assert.Equal(t, None[int](), None[int]().Filter(func(v int) bool { return v == 5 }))
+	assert.Equal(t, Some(5), Some(5).Filter(func(a int) bool { return a < 6 }))
+	assert.Equal(t, None[int](), Some(5).Filter(func(a int) bool { return a < 5 }))
+	assert.Equal(t, None[int](), None[int]().Filter(func(a int) bool { return a == 5 }))
 }
 
 func TestOptionFilterNot(t *testing.T) {
-	assert.Equal(t, Some(5), Some(5).FilterNot(func(v int) bool { return v < 5 }))
-	assert.Equal(t, None[int](), Some(5).FilterNot(func(v int) bool { return v < 6 }))
-	assert.Equal(t, None[int](), None[int]().FilterNot(func(v int) bool { return v == 5 }))
+	assert.Equal(t, Some(5), Some(5).FilterNot(func(a int) bool { return a < 5 }))
+	assert.Equal(t, None[int](), Some(5).FilterNot(func(a int) bool { return a < 6 }))
+	assert.Equal(t, None[int](), None[int]().FilterNot(func(a int) bool { return a == 5 }))
 }
 
 func TestOptionFlatMap(t *testing.T) {
-	assert.Equal(t, Some("abcdef"), Some("abc").FlatMap(func(s string) Option[string] { return Some(s + "def") }))
-	assert.Equal(t, None[string](), Some("abc").FlatMap(func(s string) Option[string] { return None[string]() }))
-	assert.Equal(t, None[string](), None[string]().FlatMap(func(s string) Option[string] { return Some(s + "def") }))
+	assert.Equal(t, Some("abcdef"), Some("abc").FlatMap(func(a string) Option[string] { return Some(a + "def") }))
+	assert.Equal(t, None[string](), Some("abc").FlatMap(func(a string) Option[string] { return None[string]() }))
+	assert.Equal(t, None[string](), None[string]().FlatMap(func(a string) Option[string] { return Some(a + "def") }))
 }
 
 func TestOptionFlatMapOption(t *testing.T) {
-	assert.Equal(t, Some("123"), FlatMapOption(Some(123), func(s int) Option[string] { return Some("123") }))
-	assert.Equal(t, None[string](), FlatMapOption(Some(123), func(s int) Option[string] { return None[string]() }))
-	assert.Equal(t, None[string](), FlatMapOption(None[int](), func(s int) Option[string] { return Some("123") }))
+	assert.Equal(t, Some("123"), FlatMapOption(Some(123), func(a int) Option[string] { return Some("123") }))
+	assert.Equal(t, None[string](), FlatMapOption(Some(123), func(a int) Option[string] { return None[string]() }))
+	assert.Equal(t, None[string](), FlatMapOption(None[int](), func(a int) Option[string] { return Some("123") }))
 }
 
 func TestOptionFlatten(t *testing.T) {
@@ -65,26 +65,26 @@ func TestOptionFlatten(t *testing.T) {
 }
 
 func TestOptionFold(t *testing.T) {
-	assert.Equal(t, 6, Some(5).Fold(-1, func(v int) int { return v + 1 }))
-	assert.Equal(t, -1, None[int]().Fold(-1, func(v int) int { return v + 1 }))
+	assert.Equal(t, 6, Some(5).Fold(-1, func(a int) int { return a + 1 }))
+	assert.Equal(t, -1, None[int]().Fold(-1, func(a int) int { return a + 1 }))
 }
 
 func TestOptionFoldOption(t *testing.T) {
-	assert.Equal(t, "5A", FoldOption(Some(5), "", func(v int) string { return fmt.Sprint(v) + "A" }))
-	assert.Equal(t, "", FoldOption(None[int](), "", func(v int) string { return fmt.Sprint(v) + "A" }))
+	assert.Equal(t, "5A", FoldOption(Some(5), "", func(a int) string { return fmt.Sprint(a) + "A" }))
+	assert.Equal(t, "", FoldOption(None[int](), "", func(a int) string { return fmt.Sprint(a) + "A" }))
 }
 
 func TestOptionForAll(t *testing.T) {
-	assert.True(t, Some("abc").ForAll(func(s string) bool { return s == "abc" }))
-	assert.True(t, None[string]().ForAll(func(s string) bool { return s == "abc" }))
-	assert.False(t, Some("abc").ForAll(func(s string) bool { return s == "def" }))
+	assert.True(t, Some("abc").ForAll(func(a string) bool { return a == "abc" }))
+	assert.True(t, None[string]().ForAll(func(a string) bool { return a == "abc" }))
+	assert.False(t, Some("abc").ForAll(func(a string) bool { return a == "def" }))
 }
 
 func TestOptionForeach(t *testing.T) {
 	//given
 	e := 0
 	//when
-	Some(5).Foreach(func(v int) { e = v })
+	Some(5).Foreach(func(a int) { e = a })
 	//then
 	assert.Equal(t, 5, e)
 }
@@ -110,13 +110,13 @@ func TestOptionIsEmpty(t *testing.T) {
 }
 
 func TestOptionMap(t *testing.T) {
-	assert.Equal(t, Some(6), Some(5).Map(func(v int) int { return v + 1 }))
-	assert.Equal(t, None[int](), None[int]().Map(func(v int) int { return v + 1 }))
+	assert.Equal(t, Some(6), Some(5).Map(func(a int) int { return a + 1 }))
+	assert.Equal(t, None[int](), None[int]().Map(func(a int) int { return a + 1 }))
 }
 
 func TestOptionMapOption(t *testing.T) {
-	assert.Equal(t, Some("5A"), MapOption(Some(5), func(v int) string { return fmt.Sprint(v) + "A" }))
-	assert.Equal(t, None[string](), MapOption(None[int](), func(v int) string { return fmt.Sprint(v) + "A" }))
+	assert.Equal(t, Some("5A"), MapOption(Some(5), func(a int) string { return fmt.Sprint(a) + "A" }))
+	assert.Equal(t, None[string](), MapOption(None[int](), func(a int) string { return fmt.Sprint(a) + "A" }))
 }
 
 func TestOptionNonEmpty(t *testing.T) {

@@ -2,6 +2,11 @@ package fun
 
 type Seq[A comparable] []A
 
+// Appends an element to the Sequence. An alias for built-in append function.
+func (seq Seq[A]) Append(elem A) Seq[A] {
+	return append(seq, elem)
+}
+
 // Returns true if this sequence contains an element that is equal (as determined by ==) to elem, false otherwise.
 func (seq Seq[A]) Contains(elem A) bool {
 	for _, e := range seq {
@@ -17,12 +22,12 @@ func (seq Seq[A]) Distinct() Seq[A] {
 	if seq == nil {
 		return nil
 	}
-	m := make(map[A]struct{}, len(seq))
-	r := make(Seq[A], 0, len(seq))
+	m := make(map[A]struct{}, seq.Length())
+	r := make(Seq[A], 0, seq.Length())
 	for _, e := range seq {
 		_, found := m[e]
 		if !found {
-			r = append(r, e)
+			r = r.Append(e)
 		}
 		m[e] = struct{}{}
 	}
@@ -44,10 +49,10 @@ func (seq Seq[A]) Filter(p func(A) bool) Seq[A] {
 	if seq == nil {
 		return nil
 	}
-	r := make(Seq[A], 0, len(seq))
+	r := make(Seq[A], 0, seq.Length())
 	for _, e := range seq {
 		if p(e) {
-			r = append(r, e)
+			r = r.Append(e)
 		}
 	}
 	return r
@@ -58,10 +63,10 @@ func (seq Seq[A]) FilterNot(p func(A) bool) Seq[A] {
 	if seq == nil {
 		return nil
 	}
-	r := make(Seq[A], 0, len(seq))
+	r := make(Seq[A], 0, seq.Length())
 	for _, e := range seq {
 		if !p(e) {
-			r = append(r, e)
+			r = r.Append(e)
 		}
 	}
 	return r
@@ -87,11 +92,11 @@ func FlatMapSeq[A, B comparable](seq Seq[A], f func(A) Seq[B]) Seq[B] {
 	if seq == nil {
 		return nil
 	}
-	r := make(Seq[B], 0, len(seq))
+	r := make(Seq[B], 0, seq.Length())
 	for _, e := range seq {
 		subSeq := f(e)
 		for _, e1 := range subSeq {
-			r = append(r, e1)
+			r = r.Append(e1)
 		}
 	}
 	return r
@@ -105,7 +110,7 @@ func FlattenSeq[A comparable](seq []Seq[A]) Seq[A] {
 	r := make(Seq[A], 0, len(seq))
 	for _, subSeq := range seq {
 		for _, e1 := range subSeq {
-			r = append(r, e1)
+			r = r.Append(e1)
 		}
 	}
 	return r
@@ -125,29 +130,48 @@ func FoldSeq[A, B comparable](seq Seq[A], z B, op func(B, A) B) B {
 	return r
 }
 
-// Tests whether a predicate holds for all elements of this sequence.
-func (seq Seq[A]) ForAll(f func(A) bool) bool {
-	panic("Not implemented")
+// Returns true if this Sequence is empty or nil or the given predicate p holds for all elements of this Sequence, otherwise false.
+func (seq Seq[A]) ForAll(p func(A) bool) bool {
+	for _, e := range seq {
+		if !p(e) {
+			return false
+		}
+	}
+	return true
 }
 
-// Applies a given procedure f to all elements of this sequence.
+// Applies a given procedure f to all elements of this Sequence.
 func (seq Seq[A]) Foreach(f func(A)) {
-	panic("Not implemented")
+	for _, e := range seq {
+		f(e)
+	}
 }
 
-// Selects the first element of this sequence.
+// Returns the first element of this Sequence. Panics if the Sequence is empty or nil.
 func (seq Seq[A]) Head() A {
-	panic("Not implemented")
+	if seq.Length() > 0 {
+		return seq[0]
+	}
+	panic("Trying to get Head from empty or nil Sequence")
 }
 
-// Optionally selects the first element.
+// Returns the first element of this Sequence if it is nonempty, None if it is empty or nil.
 func (seq Seq[A]) HeadOption() Option[A] {
-	panic("Not implemented")
+	if seq.Length() > 0 {
+		return Some(seq[0])
+	} else {
+		return None[A]()
+	}
 }
 
 // True if this sequence is empty
 func (seq Seq[A]) IsEmpty() bool {
 	panic("Not implemented")
+}
+
+// Returns the length of the Sequence. An alias for built-in len function.
+func (seq Seq[A]) Length() int {
+	return len(seq)
 }
 
 // Builds a new sequence by applying a function to all elements of this sequence.

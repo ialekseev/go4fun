@@ -196,17 +196,31 @@ func MapSeq[A, B comparable](seq Seq[A], f func(A) B) Seq[B] {
 	return r
 }
 
-// True if this sequence is not empty.
+// Returns true if the Sequence contains at least one element, false otherwise.
 func (seq Seq[A]) NonEmpty() bool {
-	panic("Not implemented")
+	return !seq.IsEmpty()
 }
 
-// Converts this sequence of pairs into two sequences of the first and second half of each pair.
-func UnZipSeq[A, B comparable](pair Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
-	panic("Not implemented")
+// Converts this Sequence of Tuples into a Tuple of two Sequences.
+func UnZipSeq[A, B comparable](seq Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
+	seqA := EmptySeq[A](seq.Length())
+	seqB := EmptySeq[B](seq.Length())
+	for _, e := range seq {
+		seqA = seqA.Append(e.a)
+		seqB = seqB.Append(e.b)
+	}
+	return NewTuple2(seqA, seqB)
 }
 
-// Returns a sequence formed from this sequence and another sequence by combining corresponding elements in pairs.
+// Returns a new Sequence formed from this Sequence and another Sequence by combining corresponding elements in Tuples. If one of the two collections is longer than the other, its remaining elements are ignored.
 func ZipSeq[A, B comparable](seq Seq[A], another Seq[B]) Seq[Tuple2[A, B]] {
-	panic("Not implemented")
+	minLen := seq.Length()
+	if another.Length() < minLen {
+		minLen = another.Length()
+	}
+	r := EmptySeq[Tuple2[A, B]](minLen)
+	for i := 0; i < minLen; i++ {
+		r = r.Append(NewTuple2(seq[i], another[i]))
+	}
+	return r
 }

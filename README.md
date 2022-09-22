@@ -1,7 +1,7 @@
 Go4Fun - GO for FUNctional programming
 ======================================
 
-Option, Sequence, Tuple types with familiar functions found in other functional-first languages: Map, FlatMap, Filter, Fold, Reduce, Zip, UnZip... Alongside many other handy functions.
+`Option`, `Sequence`, `Tuple` types with familiar functions found in other functional-first languages: `Map`, `FlatMap`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... Alongside many other handy functions.
 
 ## Examples
 
@@ -49,9 +49,9 @@ r = None[int]().Fold(1, func(a int) int { return a * 2 })
 fmt.Println(r)
 // Output: 1
 
-r = Seq[string]{"l", "e", "n", "n", "o", "n"}.Fold("john ", func(a1, a2 string) string { return a1 + a2 })
+r = Seq[string]{"r", "o", "b"}.Fold("hi ", func(a1, a2 string) string { return a1 + a2 })
 fmt.Println(r)
-// Output: john lennon
+// Output: hi rob
 
 r = Seq[int]{1, 2, 3, 4}.Reduce(func(a1, a2 int) int { return a1 + a2 })
 fmt.Println(r)

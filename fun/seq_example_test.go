@@ -37,9 +37,9 @@ func ExampleSeq_Filter_eg1() {
 }
 
 func ExampleSeq_Fold_eg1() {
-	r := Seq[string]{"l", "e", "n", "n", "o", "n"}.Fold("john ", func(a1, a2 string) string { return a1 + a2 })
+	r := Seq[string]{"r", "o", "b"}.Fold("hi ", func(a1, a2 string) string { return a1 + a2 })
 	fmt.Println(r)
-	// Output: john lennon
+	// Output: hi rob
 }
 
 func ExampleSeq_Fold_eg2() {

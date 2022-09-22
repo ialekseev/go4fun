@@ -77,7 +77,7 @@ fmt.Println(r)
 // Output: ([1 2 3],[a b c])
 ```
 
-Installation (work in progress)
+Installation
 ============
 
 To install Go4Fun use `go get`:
@@ -85,9 +85,20 @@ To install Go4Fun use `go get`:
     go get github.com/ialekseev/go4fun
 
 
-Import the `fun` package:
+Import `fun` package:
 ```go
 import (
   "github.com/ialekseev/go4fun/fun"
 )
 ```
+
+Staying up to date
+==================
+
+To update to the latest version use `go get -u github.com/ialekseev/go4fun`.
+
+
+License
+=======
+
+This project is licensed under the terms of the MIT license.

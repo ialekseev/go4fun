@@ -152,17 +152,17 @@ func (seq Seq[A]) Foreach(f func(A)) {
 	}
 }
 
-// Returns the first element of this Sequence. Panics if the Sequence is empty or nil.
+// Returns the first element of this Sequence. Returns type A's default value if the Sequence is empty or nil.
 func (seq Seq[A]) Head() A {
-	if seq.Length() > 0 {
+	if seq.NonEmpty() {
 		return seq[0]
 	}
-	panic("Trying to get Head from empty or nil Sequence")
+	return *new(A)
 }
 
 // Returns the first element of this Sequence if it is nonempty, None if it is empty or nil.
 func (seq Seq[A]) HeadOption() Option[A] {
-	if seq.Length() > 0 {
+	if seq.NonEmpty() {
 		return Some(seq[0])
 	} else {
 		return None[A]()
@@ -199,6 +199,18 @@ func MapSeq[A, B comparable](seq Seq[A], f func(A) B) Seq[B] {
 // Returns true if the Sequence contains at least one element, false otherwise.
 func (seq Seq[A]) NonEmpty() bool {
 	return !seq.IsEmpty()
+}
+
+// Returns a result of applying reduce operator op between all the elements of the Sequence, going left to right. If the Sequence is nil or empty then a default value of type A is returned.
+func (seq Seq[A]) Reduce(op func(A, A) A) A {
+	if seq.IsEmpty() {
+		return *new(A)
+	}
+	r := seq.Head()
+	for i := 1; i < seq.Length(); i++ {
+		r = op(r, seq[i])
+	}
+	return r
 }
 
 // Converts this Sequence of Tuples into a Tuple of two Sequences.

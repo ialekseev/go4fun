@@ -118,8 +118,8 @@ func TestSeqForeach(t *testing.T) {
 
 func TestSeqHead(t *testing.T) {
 	assert.Equal(t, "abc", Seq[string]{"abc", "def", "ghi"}.Head())
-	assert.Panics(t, func() { Seq[string]{}.Head() })
-	assert.Panics(t, func() { nilSeq[string]().Head() })
+	assert.Equal(t, "", Seq[string]{}.Head())
+	assert.Equal(t, 0, Seq[int]{}.Head())
 }
 
 func TestSeqHeadOption(t *testing.T) {
@@ -158,6 +158,13 @@ func TestSeqNonEmpty(t *testing.T) {
 	assert.True(t, Seq[int]{1}.NonEmpty())
 	assert.False(t, Seq[int]{}.NonEmpty())
 	assert.False(t, nilSeq[int]().NonEmpty())
+}
+
+func TestSeqReduce(t *testing.T) {
+	assert.Equal(t, 10, Seq[int]{1, 2, 3, 4}.Reduce(func(a1, a2 int) int { return a1 + a2 }))
+	assert.Equal(t, 1, Seq[int]{1}.Reduce(func(a1, a2 int) int { return a1 + a2 }))
+	assert.Equal(t, 0, Seq[int]{}.Reduce(func(a1, a2 int) int { return a1 + a2 }))
+	assert.Equal(t, 0, nilSeq[int]().Reduce(func(a1, a2 int) int { return a1 + a2 }))
 }
 
 func TestSeqUnZipSeq(t *testing.T) {

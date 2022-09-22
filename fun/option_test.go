@@ -75,7 +75,8 @@ func TestOptionForeach(t *testing.T) {
 
 func TestOptionGet(t *testing.T) {
 	assert.Equal(t, "abc", Some("abc").Get())
-	assert.Panics(t, func() { None[string]().Get() })
+	assert.Equal(t, "", None[string]().Get())
+	assert.Equal(t, 0, None[int]().Get())
 }
 
 func TestOptionGetOrElse(t *testing.T) {

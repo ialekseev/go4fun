@@ -90,12 +90,12 @@ func (option Option[A]) Foreach(f func(A)) {
 	}
 }
 
-// Returns the Option's value if the Option is nonempty, otherwise panics.
+// Returns the Option's value if the Option is nonempty, otherwise returns type A's default value.
 func (option Option[A]) Get() A {
 	if option.defined {
 		return option.value
 	} else {
-		panic("Trying to Get from None Option")
+		return *new(A)
 	}
 }
 

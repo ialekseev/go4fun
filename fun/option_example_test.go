@@ -61,7 +61,7 @@ func ExampleFlatMapOption_eg3() {
 func ExampleOption_Filter_eg1() {
 	r := Some(5).Filter(func(a int) bool { return a < 10 })
 	fmt.Println(r)
-	// Output: Some(10)
+	// Output: Some(5)
 }
 
 func ExampleOption_Filter_eg2() {
@@ -98,4 +98,16 @@ func ExampleFoldOption_eg2() {
 	r := FoldOption(None[int](), "route0", func(a int) string { return "route" + fmt.Sprint(a) })
 	fmt.Println(r)
 	// Output: route0
+}
+
+func ExampleZipOption_eg1() {
+	r := ZipOption(Some("route"), Some(60))
+	fmt.Println(r)
+	// Output: Some((route,60))
+}
+
+func ExampleUnZipOption_eg1() {
+	r := UnZipOption(Some(Tup2("route", 60)))
+	fmt.Println(r)
+	// Output: (Some(route),Some(60))
 }

@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+// Examples for: Map, FlatMap, Filter, Fold, Zip, UnZip
+
 func ExampleOption_Map_eg1() {
 	r := Some("route").Map(func(a string) string { return a + "60" })
 	fmt.Println(r)
@@ -104,6 +106,18 @@ func ExampleZipOption_eg1() {
 	r := ZipOption(Some("route"), Some(60))
 	fmt.Println(r)
 	// Output: Some((route,60))
+}
+
+func ExampleZipOption_eg2() {
+	r := ZipOption(None[string](), Some(60))
+	fmt.Println(r)
+	// Output: None
+}
+
+func ExampleZipOption_eg3() {
+	r := ZipOption(Some("route"), None[int]())
+	fmt.Println(r)
+	// Output: None
 }
 
 func ExampleUnZipOption_eg1() {

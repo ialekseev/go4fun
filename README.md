@@ -15,6 +15,10 @@ r = Some("route").FlatMap(func(a string) Option[string] { return Some(a + "60") 
 fmt.Println(r)
 // Output: Some(route60)
 
+r = Some("route").FlatMap(func(a string) Option[string] { return None[string]() })
+fmt.Println(r)
+// Output: None
+
 r = Some(5).Filter(func(a int) bool { return a < 10 })
 fmt.Println(r)
 // Output: Some(5)
@@ -81,9 +85,17 @@ r = Right[int]("60").FlatMap(func(r string) Either[int, string] { return Right[i
 fmt.Println(r)
 // Output: Right(route60)
 
+r = Right[int]("60").FlatMap(func(r string) Either[int, string] { return Left[int, string](-1) })
+fmt.Println(r)
+// Output: Left(-1)
+
 r = Right[int]("john lennon").ToOption()
 fmt.Println(r)
 // Output: Some(john lennon)
+
+r = Left[int, string](-1).ToOption()
+fmt.Println(r)
+// Output: None
 ```
 
 Installation

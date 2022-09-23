@@ -1,5 +1,6 @@
 Go4Fun - GO for FUNctional programming
 ======================================
+![build-test](https://github.com/ialekseev/go4fun/actions/workflows/main.yml/badge.svg)
 
 `Option`, `Sequence`, `Either`, `Tuple` types with familiar functions found in other functional-first languages: `Map`, `FlatMap`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... Alongside many other handy functions.
 

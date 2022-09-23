@@ -38,13 +38,13 @@ func (option Option[A]) FilterNot(p func(A) bool) Option[A] {
 }
 
 // Returns the result of applying f to this Option's value if this Option is nonempty (without changing Option value's type A).
-// Returns None if this Option is empty. Slightly different from map in that f is expected to return an Option (which could be None).
+// Returns None if this Option is empty. Different from map in that f is expected to return an Option (which could be None).
 func (option Option[A]) FlatMap(f func(A) Option[A]) Option[A] {
 	return FlatMapOption(option, f)
 }
 
 // Returns the result of applying f to this Option's value if this Option is nonempty (potentially, changing Option value's type A => B).
-// Returns None if this Option is empty. Slightly different from map in that f is expected to return an Option (which could be None).
+// Returns None if this Option is empty. Different from map in that f is expected to return an Option (which could be None).
 func FlatMapOption[A, B comparable](option Option[A], f func(A) Option[B]) Option[B] {
 	if option.defined {
 		return f(option.value)

@@ -196,12 +196,34 @@ func MapSeq[A, B comparable](seq Seq[A], f func(A) B) Seq[B] {
 	return r
 }
 
+// Returns the largest element of this Sequence. Or a default value of type A if the Sequence is empty or nil.
+func Max[A Ordered](seq Seq[A]) A {
+	return seq.Reduce(func(a1, a2 A) A {
+		if a1 > a2 {
+			return a1
+		} else {
+			return a2
+		}
+	})
+}
+
+// Returns the smallest element of this Sequence. Or a default value of type A if the Sequence is empty or nil.
+func Min[A Ordered](seq Seq[A]) A {
+	return seq.Reduce(func(a1, a2 A) A {
+		if a1 < a2 {
+			return a1
+		} else {
+			return a2
+		}
+	})
+}
+
 // Returns true if the Sequence contains at least one element, false otherwise.
 func (seq Seq[A]) NonEmpty() bool {
 	return !seq.IsEmpty()
 }
 
-// Returns a result of applying reduce operator op between all the elements of the Sequence, going left to right. If the Sequence is nil or empty then a default value of type A is returned.
+// Returns a result of applying reduce operator op between all the elements of the Sequence, going left to right. If the Sequence is empty or nil then a default value of type A is returned.
 func (seq Seq[A]) Reduce(op func(A, A) A) A {
 	if seq.IsEmpty() {
 		return *new(A)

@@ -1,4 +1,4 @@
-name: Go package
+name: build & tests
 
 on: [push]
 
@@ -17,5 +17,5 @@ jobs:
       - name: Build
         run: go build -v ./...
 
-      - name: Test
+      - name: Tests
         run: go test -v ./...

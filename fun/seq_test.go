@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func nilSeq[T comparable]() Seq[T] {
+func nilSeq[T any]() Seq[T] {
 	var n Seq[T] = nil
 	return n
 }
@@ -18,18 +18,18 @@ func TestSeqAppend(t *testing.T) {
 	assert.Equal(t, Seq[int]{1}, nilSeq[int]().Append(1))
 }
 
-func TestSeqContains(t *testing.T) {
-	assert.True(t, Seq[int]{1, 2, 5}.Contains(2))
-	assert.False(t, Seq[int]{1, 2, 5}.Contains(6))
-	assert.False(t, Seq[int]{}.Contains(2))
-	assert.False(t, nilSeq[int]().Contains(2))
+func TestSeqContainsInSeq(t *testing.T) {
+	assert.True(t, ContainsInSeq(Seq[int]{1, 2, 5}, 2))
+	assert.False(t, ContainsInSeq(Seq[int]{1, 2, 5}, 6))
+	assert.False(t, ContainsInSeq(Seq[int]{}, 2))
+	assert.False(t, ContainsInSeq(nilSeq[int](), 2))
 }
 
 func TestSeqDistinct(t *testing.T) {
-	assert.Equal(t, Seq[int]{1, 2, 3}, Seq[int]{1, 1, 2, 3, 3, 3}.Distinct())
-	assert.Equal(t, Seq[int]{1, 2, 3}, Seq[int]{1, 2, 3}.Distinct())
-	assert.Equal(t, Seq[int]{}, Seq[int]{}.Distinct())
-	assert.Nil(t, nilSeq[int]().Distinct())
+	assert.Equal(t, Seq[int]{1, 2, 3}, Distinct(Seq[int]{1, 1, 2, 3, 3, 3}))
+	assert.Equal(t, Seq[int]{1, 2, 3}, Distinct(Seq[int]{1, 2, 3}))
+	assert.Equal(t, Seq[int]{}, Distinct(Seq[int]{}))
+	assert.Nil(t, Distinct(nilSeq[int]()))
 }
 
 func TestSeqEmptySeq(t *testing.T) {

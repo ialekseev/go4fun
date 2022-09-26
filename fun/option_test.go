@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOptionContains(t *testing.T) {
-	assert.True(t, Some(5).Contains(5))
-	assert.False(t, Some(5).Contains(6))
-	assert.False(t, None[int]().Contains(5))
+func TestOptionContainsInOption(t *testing.T) {
+	assert.True(t, ContainsInOption(Some(5), 5))
+	assert.False(t, ContainsInOption(Some(5), 6))
+	assert.False(t, ContainsInOption(None[int](), 5))
 }
 
 func TestOptionExists(t *testing.T) {

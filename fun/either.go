@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-type Either[L, R comparable] Tuple2[Option[L], Option[R]]
+type Either[L, R any] Tuple2[Option[L], Option[R]]
 
 // Returns a result of applying f to Right value if this Either is Right (without changing Right type R). Different from map in that f is expected to return an Either (which could be Left).
 // Returns unchanged Left if this Either is Left.
@@ -14,7 +14,7 @@ func (either Either[L, R]) FlatMap(f func(R) Either[L, R]) Either[L, R] {
 
 // Returns a result of applying f to Right value if this Either is Right (potentially, changing Right type R => T)). Different from map in that f is expected to return an Either (which could be Left).
 // Returns unchanged Left if this Either is Left.
-func FlatMapEither[L, R, T comparable](either Either[L, R], f func(R) Either[L, T]) Either[L, T] {
+func FlatMapEither[L, R, T any](either Either[L, R], f func(R) Either[L, T]) Either[L, T] {
 	if either.IsRight() {
 		return f(either.RightOption().Get())
 	} else {
@@ -33,7 +33,7 @@ func (either Either[L, R]) IsRight() bool {
 }
 
 // Creates a new Left Either.
-func Left[L, R comparable](l L) Either[L, R] {
+func Left[L, R any](l L) Either[L, R] {
 	return Either[L, R]{Some(l), None[R]()}
 }
 
@@ -50,7 +50,7 @@ func (either Either[L, R]) Map(f func(R) R) Either[L, R] {
 
 // Returns a result of applying f to Right value if this Either is Right (potentially, changing Right type R => T)).
 // Returns unchanged Left if this Either is Left.
-func MapEither[L, R, T comparable](either Either[L, R], f func(R) T) Either[L, T] {
+func MapEither[L, R, T any](either Either[L, R], f func(R) T) Either[L, T] {
 	if either.IsRight() {
 		return Right[L](f(either.RightOption().Get()))
 	} else {
@@ -59,7 +59,7 @@ func MapEither[L, R, T comparable](either Either[L, R], f func(R) T) Either[L, T
 }
 
 // Creates a new Right Either.
-func Right[L, R comparable](r R) Either[L, R] {
+func Right[L, R any](r R) Either[L, R] {
 	return Either[L, R]{None[L](), Some(r)}
 }
 

@@ -1,6 +1,6 @@
 package fun
 
-type Seq[A comparable] []A
+type Seq[A any] []A
 
 // Appends an element to the Sequence. An alias for built-in append function.
 func (seq Seq[A]) Append(elem A) Seq[A] {
@@ -8,7 +8,7 @@ func (seq Seq[A]) Append(elem A) Seq[A] {
 }
 
 // Returns true if this sequence contains an element that is equal (as determined by ==) to elem, false otherwise.
-func (seq Seq[A]) Contains(elem A) bool {
+func ContainsInSeq[A comparable](seq Seq[A], elem A) bool {
 	for _, e := range seq {
 		if e == elem {
 			return true
@@ -18,7 +18,7 @@ func (seq Seq[A]) Contains(elem A) bool {
 }
 
 // Returns a new Sequence from this Sequence without any duplicate elements.
-func (seq Seq[A]) Distinct() Seq[A] {
+func Distinct[A comparable](seq Seq[A]) Seq[A] {
 	if seq == nil {
 		return nil
 	}
@@ -35,7 +35,7 @@ func (seq Seq[A]) Distinct() Seq[A] {
 }
 
 // Creates a new empty Sequence of provided capacity. An underlying slice would have 0 length.
-func EmptySeq[A comparable](capacity int) Seq[A] {
+func EmptySeq[A any](capacity int) Seq[A] {
 	return make(Seq[A], 0, capacity)
 }
 
@@ -93,7 +93,7 @@ func (seq Seq[A]) FlatMap(f func(A) Seq[A]) Seq[A] {
 }
 
 // Returns a new Sequence resulting from applying the given function (f: A => Seq[B]) to each element of this Sequence and then flattening results to Seq[B]. The original Sequence type A could change to B.
-func FlatMapSeq[A, B comparable](seq Seq[A], f func(A) Seq[B]) Seq[B] {
+func FlatMapSeq[A, B any](seq Seq[A], f func(A) Seq[B]) Seq[B] {
 	if seq == nil {
 		return nil
 	}
@@ -108,7 +108,7 @@ func FlatMapSeq[A, B comparable](seq Seq[A], f func(A) Seq[B]) Seq[B] {
 }
 
 // Converts this slice of Sequences into a Sequence formed by the elements of these Sequences (returns a Sequence resulting from concatenating all element Sequences).
-func FlattenSeq[A comparable](seq []Seq[A]) Seq[A] {
+func FlattenSeq[A any](seq []Seq[A]) Seq[A] {
 	if seq == nil {
 		return nil
 	}
@@ -127,7 +127,7 @@ func (seq Seq[A]) Fold(z A, op func(A, A) A) A {
 }
 
 // Applies a binary operator op to a start value z (of type B) and all Sequence elements (of type A), going left to right. The accumulation result is of type B.
-func FoldSeq[A, B comparable](seq Seq[A], z B, op func(B, A) B) B {
+func FoldSeq[A, B any](seq Seq[A], z B, op func(B, A) B) B {
 	r := z
 	for _, e := range seq {
 		r = op(r, e)
@@ -185,7 +185,7 @@ func (seq Seq[A]) Map(f func(A) A) Seq[A] {
 }
 
 // Returns a new Sequence resulting from applying the given function f to each element of this Sequence and collecting the results (potentially, changing type A of the Sequence elements to B).
-func MapSeq[A, B comparable](seq Seq[A], f func(A) B) Seq[B] {
+func MapSeq[A, B any](seq Seq[A], f func(A) B) Seq[B] {
 	if seq == nil {
 		return nil
 	}
@@ -236,7 +236,7 @@ func (seq Seq[A]) Reduce(op func(A, A) A) A {
 }
 
 // Converts this Sequence of Tuples into a Tuple of two Sequences.
-func UnZipSeq[A, B comparable](seq Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
+func UnZipSeq[A, B any](seq Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
 	seqA := EmptySeq[A](seq.Length())
 	seqB := EmptySeq[B](seq.Length())
 	for _, e := range seq {
@@ -247,7 +247,7 @@ func UnZipSeq[A, B comparable](seq Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
 }
 
 // Returns a new Sequence formed from this Sequence and another Sequence by combining corresponding elements in Tuples. If one of the two collections is longer than the other, its remaining elements are ignored.
-func ZipSeq[A, B comparable](seq Seq[A], another Seq[B]) Seq[Tuple2[A, B]] {
+func ZipSeq[A, B any](seq Seq[A], another Seq[B]) Seq[Tuple2[A, B]] {
 	minLen := seq.Length()
 	if another.Length() < minLen {
 		minLen = another.Length()

@@ -2,19 +2,18 @@ package fun
 
 import "sync"
 
-type Future[A comparable] struct {
+type Future[A any] struct {
 	ch    chan A
 	value Option[A]
 	mtx   *sync.Mutex
 }
 
-func NewFuture[A comparable](f func() A) Future[A] {
+func NewFuture[A any](f func() A) Future[A] {
 	future := Future[A]{make(chan A), None[A](), new(sync.Mutex)}
 
 	go func() {
 		r := f()
 		future.ch <- r
-		close(future.ch)
 	}()
 
 	return future
@@ -31,7 +30,7 @@ func (future *Future[A]) Result() A {
 		future.value = Some(<-future.ch)
 	}
 	future.mtx.Unlock()
-	return future.value.value
+	return future.value.Get()
 }
 
 // When this Future is completed apply the provided function on its value.

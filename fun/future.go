@@ -9,9 +9,14 @@ type Future[A any] struct {
 	mtx   *sync.Mutex
 }
 
-// Creates a new Future by applying a function (which itself returns Future) to the result of this Future.
+// Returns a new Future by applying a function (which itself returns Future) to the result of this Future (while keeping the same Future value's type A).
 func (future *Future[A]) FlatMap(f func(A) Future[A]) Future[A] {
-	return FutureValue(func() A {
+	return FlatMapFuture(future, f)
+}
+
+// Returns a new Future by applying a function (which itself returns Future) to the result of this Future (potentially, changing the Future value's type A => B).
+func FlatMapFuture[A, B any](future *Future[A], f func(A) Future[B]) Future[B] {
+	return FutureValue(func() B {
 		inner := f(future.Result())
 		return inner.Result()
 	})
@@ -22,8 +27,7 @@ func FutureValue[A any](f func() A) Future[A] {
 	future := Future[A]{new(Option[A]), make(chan A), new(sync.Mutex)}
 
 	go func() {
-		r := f()
-		future.ch <- r
+		future.ch <- f()
 	}()
 
 	go func() {
@@ -38,9 +42,14 @@ func (future *Future[A]) IsCompleted() bool {
 	return future.value.IsDefined()
 }
 
-// Creates a new Future by applying a function to the result of this Future.
+// Returns a new Future by applying a function to the result of this Future (while keeping the same Future value's type A).
 func (future *Future[A]) Map(f func(A) A) Future[A] {
-	return FutureValue(func() A {
+	return MapFuture(future, f)
+}
+
+// Returns a new Future by applying a function to the result of this Future (potentially, changing the Future value's type A => B).
+func MapFuture[A, B any](future *Future[A], f func(A) B) Future[B] {
+	return FutureValue(func() B {
 		return f(future.Result())
 	})
 }

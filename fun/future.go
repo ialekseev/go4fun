@@ -20,24 +20,36 @@ func NewFuture[A comparable](f func() A) Future[A] {
 	return future
 }
 
-func (future Future[A]) IsCompleted() bool {
+func (future *Future[A]) IsCompleted() bool {
 	return future.value.IsDefined()
 }
 
-func (future Future[A]) read() A {
-	var v A
+// Await and return a result (of type A) of this Future.
+func (future *Future[A]) Result() A {
 	future.mtx.Lock()
 	if !future.IsCompleted() {
-		v = <-future.ch
-	} else {
-		v = future.value.Get()
+		future.value = Some(<-future.ch)
 	}
 	future.mtx.Unlock()
-	return v
+	return future.value.value
 }
 
-func (future Future[A]) OnComplete(f func(A)) {
+// When this Future is completed apply the provided function on its value.
+func (future *Future[A]) OnComplete(f func(A)) {
 	go func() {
-		f(future.read())
+		f(future.Result())
 	}()
+}
+
+func (future *Future[A]) Map(f func(A) A) Future[A] {
+	return NewFuture(func() A {
+		return f(future.Result())
+	})
+}
+
+func (future *Future[A]) FlatMap(f func(A) Future[A]) Future[A] {
+	return NewFuture(func() A {
+		inner := f(future.Result())
+		return inner.Result()
+	})
 }

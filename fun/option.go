@@ -4,13 +4,13 @@ import (
 	"fmt"
 )
 
-type Option[A comparable] struct {
+type Option[A any] struct {
 	value   A
 	defined bool
 }
 
 // Returns true if this Option has an element that is equal (as determined by ==) to elem, false otherwise.
-func (option Option[A]) Contains(elem A) bool {
+func ContainsInOption[A comparable](option Option[A], elem A) bool {
 	return option.defined && option.value == elem
 }
 
@@ -45,7 +45,7 @@ func (option Option[A]) FlatMap(f func(A) Option[A]) Option[A] {
 
 // Returns the result of applying f to this Option's value if this Option is nonempty (potentially, changing Option value's type A => B).
 // Returns None if this Option is empty. Different from map in that f is expected to return an Option (which could be None).
-func FlatMapOption[A, B comparable](option Option[A], f func(A) Option[B]) Option[B] {
+func FlatMapOption[A, B any](option Option[A], f func(A) Option[B]) Option[B] {
 	if option.defined {
 		return f(option.value)
 	} else {
@@ -54,7 +54,7 @@ func FlatMapOption[A, B comparable](option Option[A], f func(A) Option[B]) Optio
 }
 
 // Returns the nested Option value if this Option is nonempty.
-func FlattenOption[A comparable](option Option[Option[A]]) Option[A] {
+func FlattenOption[A any](option Option[Option[A]]) Option[A] {
 	if option.defined {
 		return option.value
 	} else {
@@ -70,7 +70,7 @@ func (option Option[A]) Fold(defaultValue A, f func(A) A) A {
 
 // Returns the result of applying f to this Option's value if the Option is nonempty. Otherwise, returns defaultValue.
 // Resulting value's type B could, potentially, be different from the Option value's type A.
-func FoldOption[A, B comparable](option Option[A], defaultValue B, f func(A) B) B {
+func FoldOption[A, B any](option Option[A], defaultValue B, f func(A) B) B {
 	if option.defined {
 		return f(option.value)
 	} else {
@@ -124,7 +124,7 @@ func (option Option[A]) Map(f func(A) A) Option[A] {
 }
 
 // Returns a Some containing the result of applying f to this Option's value if this Option is nonempty (potentially, changing Option value's type A => B). Otherwise return None.
-func MapOption[A, B comparable](option Option[A], f func(A) B) Option[B] {
+func MapOption[A, B any](option Option[A], f func(A) B) Option[B] {
 	if option.defined {
 		return Some(f(option.value))
 	} else {
@@ -133,7 +133,7 @@ func MapOption[A, B comparable](option Option[A], f func(A) B) Option[B] {
 }
 
 // None[A] represents a non-existing value of type A.
-func None[A comparable]() Option[A] {
+func None[A any]() Option[A] {
 	return Option[A]{}
 }
 
@@ -152,7 +152,7 @@ func (option Option[A]) OrElse(alternative Option[A]) Option[A] {
 }
 
 // Wrap a value A in Some[A]. Some[A] represents an existing value of type A.
-func Some[A comparable](value A) Option[A] {
+func Some[A any](value A) Option[A] {
 	return Option[A]{value, true}
 }
 
@@ -174,7 +174,7 @@ func (option Option[A]) ToSeq() Seq[A] {
 }
 
 // Converts an Option of a Tuple into a Tuple of 2 Options.
-func UnZipOption[A, B comparable](pair Option[Tuple2[A, B]]) Tuple2[Option[A], Option[B]] {
+func UnZipOption[A, B any](pair Option[Tuple2[A, B]]) Tuple2[Option[A], Option[B]] {
 	if pair.defined {
 		return Tup2(Some(pair.value.a), Some(pair.value.b))
 	} else {
@@ -183,7 +183,7 @@ func UnZipOption[A, B comparable](pair Option[Tuple2[A, B]]) Tuple2[Option[A], O
 }
 
 // Returns a Some formed from this Option and another Option by combining the corresponding elements in a Tuple. If either of the two Options is empty, None is returned.
-func ZipOption[A, B comparable](option Option[A], another Option[B]) Option[Tuple2[A, B]] {
+func ZipOption[A, B any](option Option[A], another Option[B]) Option[Tuple2[A, B]] {
 	if option.defined && another.defined {
 		return Some(Tup2(option.value, another.value))
 	} else {

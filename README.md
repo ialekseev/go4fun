@@ -76,6 +76,59 @@ fmt.Println(r)
 // Output: ([1 2 3],[a b c])
 ```
 
+### Future
+```go
+//Map
+
+future = FutureValue(func() string {
+	time.Sleep(time.Millisecond * 20)
+	return "abc"
+})
+
+r = future.Map(func(a string) string { return a + "def" })
+
+time.Sleep(time.Millisecond * 30)
+
+fmt.Println(r.Value())
+// Output: Some(abcdef)
+```
+
+```go
+//FlatMap
+
+future = FutureValue(func() string {
+	time.Sleep(time.Millisecond * 10)
+	return "abc"
+})
+
+r = future.FlatMap(func(a string) Future[string] {
+	return FutureValue(func() string {
+		time.Sleep(time.Millisecond * 10)
+		return a + "def"
+	})
+})
+
+time.Sleep(time.Millisecond * 50)
+
+fmt.Println(r.Value())
+// Output: Some(abcdef)
+```
+
+```go
+//OnComplete
+
+future = FutureValue(func() string {
+	time.Sleep(time.Millisecond * 20)
+	return "abc"
+})
+
+future.OnComplete(func(a string) { fmt.Println(a + "def") })
+
+time.Sleep(time.Millisecond * 30)
+
+// Output: abcdef
+```
+
 ### Either
 ```go
 r = Right[int]("60").Map(func(r string) string { return "route" + r })

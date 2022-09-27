@@ -48,7 +48,7 @@ func TestFutureFlatMapFuture(t *testing.T) {
 	assert.Equal(t, "123456", r.Result())
 }
 
-func TestFutureValue(t *testing.T) {
+func TestFutureFutureValue(t *testing.T) {
 	f := FutureValue(func() string {
 		time.Sleep(time.Millisecond * 10)
 		return "abc"
@@ -119,4 +119,14 @@ func TestFutureResult(t *testing.T) {
 	r := f.Result()
 	//then
 	assert.Equal(t, "abc", r)
+}
+
+func TestFutureValue(t *testing.T) {
+	f := FutureValue(func() string {
+		time.Sleep(time.Millisecond * 20)
+		return "abc"
+	})
+	assert.Equal(t, None[string](), f.Value())
+	time.Sleep(time.Millisecond * 30)
+	assert.Equal(t, Some("abc"), f.Value())
 }

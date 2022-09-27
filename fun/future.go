@@ -71,3 +71,8 @@ func (future *Future[A]) Result() A {
 	future.mtx.Unlock()
 	return future.value.Get()
 }
+
+// Returns the current value of this Future. If the Future was not completed the returned value will be None. If the Future was completed the value will be Some(value).
+func (future *Future[A]) Value() Option[A] {
+	return *future.value
+}

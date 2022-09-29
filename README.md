@@ -9,6 +9,7 @@ Go4Fun - GO for FUNctional programming
 - [Sequence](https://github.com/ialekseev/go4fun#sequence)
 - [Future](https://github.com/ialekseev/go4fun#future)
 - [Either](https://github.com/ialekseev/go4fun#either)
+- [Currying](https://github.com/ialekseev/go4fun#currying)
 
 ## Option
 #### Map
@@ -188,6 +189,36 @@ fmt.Println(r)
 r = Left[int, string](-1).ToOption()
 fmt.Println(r)
 // Output: None
+```
+
+## Currying
+#### Curry
+```go
+f = func(a int, b bool, c float64) string {
+	return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+}
+
+curriedF := Curry3(f)
+r = curriedF(1)(true)(5.5)
+
+fmt.Println(r)
+// Output: 1 true 5.5
+```
+#### UnCurry
+```go
+f = func(a int) func(bool) func(float64) string {
+	return func(b bool) func(float64) string {
+		return func(c float64) string {
+			return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+		}
+	}
+}
+
+unCurriedF := UnCurry3(f)
+r = unCurriedF(1, true, 5.5)
+
+fmt.Println(r)
+// Output: 1 true 5.5
 ```
 
 Installation

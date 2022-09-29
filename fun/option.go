@@ -9,6 +9,34 @@ type Option[A any] struct {
 	defined bool
 }
 
+// Returns a Some containing a result of applying a function f(A)=>B to Option[A]'s value if the Option is nonempty. Otherwise returns None.
+// An Alias for Map function.
+func Apply1[A, B any](option Option[A], f func(A) B) Option[B] {
+	return MapOption(option, f)
+}
+
+// Returns a Some containing a result of applying a binary function f(A,B)=>C to Option[A] & Option[B]'s values if both Options are nonempty. Otherwise returns None.
+func Apply2[A, B, C any](optionA Option[A], optionB Option[B], f func(A, B) C) Option[C] {
+	bc := MapOption(optionA, Curry2(f))
+	return FlatMapOption(bc, func(bc func(B) C) Option[C] {
+		return MapOption(optionB, func(b B) C {
+			return bc(b)
+		})
+	})
+}
+
+// Returns a Some containing a result of applying a function of 3 arguments f(A,B,C)=>D to Option[A] & Option[B] & Option[C]'s values if all 3 Options are nonempty. Otherwise returns None.
+func Apply3[A, B, C, D any](optionA Option[A], optionB Option[B], optionC Option[C], f func(A, B, C) D) Option[D] {
+	bcd := MapOption(optionA, Curry3(f))
+	return FlatMapOption(bcd, func(bcd func(B) func(C) D) Option[D] {
+		return FlatMapOption(optionB, func(b B) Option[D] {
+			return MapOption(optionC, func(c C) D {
+				return bcd(b)(c)
+			})
+		})
+	})
+}
+
 // Returns true if this Option has an element that is equal (as determined by ==) to elem, false otherwise.
 func ContainsInOption[A comparable](option Option[A], elem A) bool {
 	return option.defined && option.value == elem

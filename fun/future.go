@@ -63,12 +63,13 @@ func (future *Future[A]) OnComplete(f func(A)) {
 
 // Await and return the result (of type A) of this Future.
 func (future *Future[A]) Result() A {
-	future.mtx.Lock()
 	if !future.IsCompleted() {
-		result := Some(<-future.ch)
-		*future.value = result
+		future.mtx.Lock()
+		if !future.IsCompleted() {
+			*future.value = Some(<-future.ch)
+		}
+		future.mtx.Unlock()
 	}
-	future.mtx.Unlock()
 	return future.value.Get()
 }
 

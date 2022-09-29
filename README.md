@@ -2,16 +2,23 @@ Go4Fun - GO for FUNctional programming
 ======================================
 ![build-test](https://github.com/ialekseev/go4fun/actions/workflows/main.yml/badge.svg)
 
-`Option`, `Sequence`, `Future`, `Either`, `Tuple` types with familiar functions found in other functional-first languages: `Map`, `FlatMap`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... Alongside many other handy functions.
+`Option`, `Sequence`, `Future`, `Either`, `Tuple` types with familiar combinators found in other functional-first languages: `Map`, `FlatMap`, `Apply (Applicative)`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... Alongside many other handy functions.
 
-## Examples
+# Examples
+- [Option](https://github.com/ialekseev/go4fun#option)
+- [Sequence](https://github.com/ialekseev/go4fun#sequence)
+- [Future](https://github.com/ialekseev/go4fun#future)
+- [Either](https://github.com/ialekseev/go4fun#either)
 
-### Option
+## Option
+#### Map
 ```go
 r = Some("route").Map(func(a string) string { return a + "60" })
 fmt.Println(r)
 // Output: Some(route60)
-
+```
+#### FlatMap
+```go
 r = Some("route").FlatMap(func(a string) Option[string] { return Some(a + "60") })
 fmt.Println(r)
 // Output: Some(route60)
@@ -19,7 +26,23 @@ fmt.Println(r)
 r = Some("route").FlatMap(func(a string) Option[string] { return None[string]() })
 fmt.Println(r)
 // Output: None
+```
+#### Apply (Applicative)
+```go
+r = ApplyOption3(Some(true), Some(10), Some("abc"), func(a bool, b int, c string) string {
+	return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+})
+fmt.Println(r)
+// Output: Some(true 10 abc)
 
+r = ApplyOption3(None[bool](), Some(10), Some("abc"), func(a bool, b int, c string) string {
+	return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+})
+fmt.Println(r)
+// Output: None
+```
+#### Filter
+```go
 r = Some(5).Filter(func(a int) bool { return a < 10 })
 fmt.Println(r)
 // Output: Some(5)
@@ -27,7 +50,9 @@ fmt.Println(r)
 r = Some(10).Filter(func(a int) bool { return a > 10 })
 fmt.Println(r)
 // Output: None
-
+```
+#### Fold
+```go
 r = Some(5).Fold(1, func(a int) int { return a * 2 })
 fmt.Println(r)
 // Output: 10
@@ -35,7 +60,9 @@ fmt.Println(r)
 r = None[int]().Fold(1, func(a int) int { return a * 2 })
 fmt.Println(r)
 // Output: 1
-
+```
+#### Zip & UnZip
+```go
 r = ZipOption(Some("route"), Some(60))
 fmt.Println(r)
 // Output: Some((route,60))
@@ -45,28 +72,39 @@ fmt.Println(r)
 // Output: (Some(route),Some(60))
 ```
 
-### Sequence
+## Sequence
+#### Map
 ```go
 r = Seq[string]{"a", "b", "c"}.Map(func(a string) string { return a + "!" })
 fmt.Println(r)
 // Output: [a! b! c!]
-
+```
+#### FlatMap
+```go
 r = Seq[int]{1, 2}.FlatMap(func(a int) Seq[int] { return Seq[int]{a, a} })
 fmt.Println(r)
 // Output: [1 1 2 2]
-
+```
+#### Filter
+```go
 r = Seq[int]{2, 3, 4, 5, 6}.Filter(func(a int) bool { return a%2 == 0 })
 fmt.Println(r)
 // Output: [2 4 6]
-
+```
+#### Fold
+```go
 r = Seq[string]{"r", "o", "b"}.Fold("hi ", func(a1, a2 string) string { return a1 + a2 })
 fmt.Println(r)
 // Output: hi rob
-
+```
+#### Reduce
+```go
 r = Seq[int]{1, 2, 3, 4}.Reduce(func(a1, a2 int) int { return a1 + a2 })
 fmt.Println(r)
 // Output: 10
-
+```
+#### Zip & UnZip
+```go
 r = ZipSeq(Seq[int]{1, 2, 3}, Seq[string]{"a", "b", "c"})
 fmt.Println(r)
 // Output: [(1,a) (2,b) (3,c)]
@@ -76,10 +114,9 @@ fmt.Println(r)
 // Output: ([1 2 3],[a b c])
 ```
 
-### Future
+## Future
+#### Map
 ```go
-//Map
-
 future = FutureValue(func() string {
 	time.Sleep(time.Millisecond * 20)
 	return "abc"
@@ -92,10 +129,8 @@ time.Sleep(time.Millisecond * 30)
 fmt.Println(r.Value())
 // Output: Some(abcdef)
 ```
-
+#### FlatMap
 ```go
-//FlatMap
-
 future = FutureValue(func() string {
 	time.Sleep(time.Millisecond * 10)
 	return "abc"
@@ -113,10 +148,8 @@ time.Sleep(time.Millisecond * 50)
 fmt.Println(r.Value())
 // Output: Some(abcdef)
 ```
-
+#### OnComplete
 ```go
-//OnComplete
-
 future = FutureValue(func() string {
 	time.Sleep(time.Millisecond * 20)
 	return "abc"
@@ -129,12 +162,15 @@ time.Sleep(time.Millisecond * 30)
 // Output: abcdef
 ```
 
-### Either
+## Either
+#### Map
 ```go
 r = Right[int]("60").Map(func(r string) string { return "route" + r })
 fmt.Println(r)
 // Output: Right(route60)
-
+```
+#### FlatMap
+```go
 r = Right[int]("60").FlatMap(func(r string) Either[int, string] { return Right[int]("route" + r) })
 fmt.Println(r)
 // Output: Right(route60)
@@ -142,7 +178,9 @@ fmt.Println(r)
 r = Right[int]("60").FlatMap(func(r string) Either[int, string] { return Left[int, string](-1) })
 fmt.Println(r)
 // Output: Left(-1)
-
+```
+#### ToOption
+```go
 r = Right[int]("john lennon").ToOption()
 fmt.Println(r)
 // Output: Some(john lennon)

@@ -6,7 +6,7 @@ import "sync"
 type Future[A any] struct {
 	value *Option[A]
 	ch    chan A
-	mtx   *sync.Mutex
+	once  *sync.Once
 }
 
 // Returns a new Future by applying a function (which itself returns Future) to the result of this Future (while keeping the same Future value's type A).
@@ -24,7 +24,7 @@ func FlatMapFuture[A, B any](future *Future[A], f func(A) Future[B]) Future[B] {
 
 // Creates a new Future from the provided function that will asynchronously produce a value A at some point.
 func FutureValue[A any](f func() A) Future[A] {
-	future := Future[A]{new(Option[A]), make(chan A), new(sync.Mutex)}
+	future := Future[A]{new(Option[A]), make(chan A), new(sync.Once)}
 
 	go func() {
 		future.ch <- f()
@@ -63,13 +63,9 @@ func (future *Future[A]) OnComplete(f func(A)) {
 
 // Await and return the result (of type A) of this Future.
 func (future *Future[A]) Result() A {
-	if !future.IsCompleted() {
-		future.mtx.Lock()
-		if !future.IsCompleted() {
-			*future.value = Some(<-future.ch)
-		}
-		future.mtx.Unlock()
-	}
+	future.once.Do(func() {
+		*future.value = Some(<-future.ch)
+	})
 	return future.value.Get()
 }
 

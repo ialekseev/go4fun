@@ -7,6 +7,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestOptionApplyOption1(t *testing.T) {
+	assert.Equal(t, Some("5A"), ApplyOption1(Some(5), func(a int) string { return fmt.Sprint(a) + "A" }))
+	assert.Equal(t, None[string](), ApplyOption1(None[int](), func(a int) string { return fmt.Sprint(a) + "A" }))
+}
+
+func TestOptionApplyOption2(t *testing.T) {
+	assert.Equal(t, Some("true 10"), ApplyOption2(Some(true), Some(10), func(a bool, b int) string { return fmt.Sprint(a) + " " + fmt.Sprint(b) }))
+	assert.Equal(t, None[string](), ApplyOption2(None[bool](), Some(10), func(a bool, b int) string { return fmt.Sprint(a) + " " + fmt.Sprint(b) }))
+	assert.Equal(t, None[string](), ApplyOption2(Some(true), None[int](), func(a bool, b int) string { return fmt.Sprint(a) + " " + fmt.Sprint(b) }))
+	assert.Equal(t, None[string](), ApplyOption2(None[bool](), None[int](), func(a bool, b int) string { return fmt.Sprint(a) + " " + fmt.Sprint(b) }))
+}
+
+func TestOptionApplyOption3(t *testing.T) {
+	assert.Equal(t, Some("true 10 abc"), ApplyOption3(Some(true), Some(10), Some("abc"), func(a bool, b int, c string) string { return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c) }))
+	assert.Equal(t, None[string](), ApplyOption3(None[bool](), Some(10), Some("abc"), func(a bool, b int, c string) string { return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c) }))
+	assert.Equal(t, None[string](), ApplyOption3(Some(true), None[int](), Some("abc"), func(a bool, b int, c string) string { return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c) }))
+	assert.Equal(t, None[string](), ApplyOption3(Some(true), Some(10), None[string](), func(a bool, b int, c string) string { return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c) }))
+	assert.Equal(t, None[string](), ApplyOption3(None[bool](), None[int](), None[string](), func(a bool, b int, c string) string { return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c) }))
+}
+
 func TestOptionContainsInOption(t *testing.T) {
 	assert.True(t, ContainsInOption(Some(5), 5))
 	assert.False(t, ContainsInOption(Some(5), 6))

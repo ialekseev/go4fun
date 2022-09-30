@@ -10,6 +10,7 @@ Go4Fun - GO for FUNctional programming
 - [Future](https://github.com/ialekseev/go4fun#future)
 - [Either](https://github.com/ialekseev/go4fun#either)
 - [Currying](https://github.com/ialekseev/go4fun#currying)
+- [Function Composition](https://github.com/ialekseev/go4fun#function-composition)
 
 ## Option
 #### Map
@@ -243,6 +244,18 @@ r = unCurriedF(1, true, 5.5)
 
 fmt.Println(r)
 // Output: 1 true 5.5
+```
+
+## Function Composition
+```go
+f = func(a int) string { return fmt.Sprint(a) }
+g = func(b string) bool { return b != "" }
+h = func(c bool) string { return fmt.Sprint(c) }
+
+j = Compose3(f, g, h)
+
+fmt.Println(j(1) == h(g(f(1))))
+// Output: true
 ```
 
 Installation

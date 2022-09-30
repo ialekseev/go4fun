@@ -8,6 +8,81 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestFutureApplyFuture1(t *testing.T) {
+	// given
+	f := FutureValue(func() int {
+		time.Sleep(time.Millisecond * 10)
+		return 123
+	})
+
+	// when
+	r := ApplyFuture1(f, func(a int) Future[string] {
+		return FutureValue(func() string {
+			time.Sleep(time.Millisecond * 10)
+			return fmt.Sprint(a) + "456"
+		})
+	})
+
+	time.Sleep(time.Millisecond * 50)
+	// then
+	assert.Equal(t, "123456", r.Result())
+}
+
+func TestFutureApplyFuture2(t *testing.T) {
+	// given
+	f1 := FutureValue(func() int {
+		time.Sleep(time.Millisecond * 10)
+		return 123
+	})
+
+	f2 := FutureValue(func() bool {
+		time.Sleep(time.Millisecond * 10)
+		return true
+	})
+
+	// when
+	r := ApplyFuture2(f1, f2, func(a int, b bool) Future[string] {
+		return FutureValue(func() string {
+			time.Sleep(time.Millisecond * 10)
+			return fmt.Sprint(a) + " " + fmt.Sprint(b)
+		})
+	})
+
+	time.Sleep(time.Millisecond * 60)
+	// then
+	assert.Equal(t, "123 true", r.Result())
+}
+
+func TestFutureApplyFuture3(t *testing.T) {
+	// given
+	f1 := FutureValue(func() int {
+		time.Sleep(time.Millisecond * 10)
+		return 123
+	})
+
+	f2 := FutureValue(func() bool {
+		time.Sleep(time.Millisecond * 10)
+		return true
+	})
+
+	f3 := FutureValue(func() string {
+		time.Sleep(time.Millisecond * 10)
+		return "abc"
+	})
+
+	// when
+	r := ApplyFuture3(f1, f2, f3, func(a int, b bool, c string) Future[string] {
+		return FutureValue(func() string {
+			time.Sleep(time.Millisecond * 10)
+			return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+		})
+	})
+
+	time.Sleep(time.Millisecond * 60)
+	// then
+	assert.Equal(t, "123 true abc", r.Result())
+}
+
 func TestFutureFlatMap(t *testing.T) {
 	//given
 	f := FutureValue(func() string {
@@ -36,7 +111,7 @@ func TestFutureFlatMapFuture(t *testing.T) {
 	})
 
 	//when
-	r := FlatMapFuture(&f, func(a int) Future[string] {
+	r := FlatMapFuture(f, func(a int) Future[string] {
 		return FutureValue(func() string {
 			time.Sleep(time.Millisecond * 10)
 			return fmt.Sprint(a) + "456"
@@ -88,7 +163,7 @@ func TestFutureMapFuture(t *testing.T) {
 		return 123
 	})
 	//when
-	r := MapFuture(&f, func(a int) string { return fmt.Sprint(a) + "456" })
+	r := MapFuture(f, func(a int) string { return fmt.Sprint(a) + "456" })
 	time.Sleep(time.Millisecond * 50)
 	//then
 	assert.Equal(t, "123456", r.Result())

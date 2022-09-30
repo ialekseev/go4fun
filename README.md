@@ -30,14 +30,14 @@ fmt.Println(r)
 ```
 #### Apply (Applicative)
 ```go
-r = ApplyOption3(Some(true), Some(10), Some("abc"), func(a bool, b int, c string) string {
-	return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+r = ApplyOption3(Some(true), Some(10), Some("abc"), func(a bool, b int, c string) Option[string] {
+	return Some(fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c))
 })
 fmt.Println(r)
 // Output: Some(true 10 abc)
 
-r = ApplyOption3(None[bool](), Some(10), Some("abc"), func(a bool, b int, c string) string {
-	return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+r = ApplyOption3(None[bool](), Some(10), Some("abc"), func(a bool, b int, c string) Option[string] {
+	return Some(fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c))
 })
 fmt.Println(r)
 // Output: None
@@ -127,8 +127,8 @@ r = future.Map(func(a string) string { return a + "def" })
 
 time.Sleep(time.Millisecond * 30)
 
-fmt.Println(r.Value())
-// Output: Some(abcdef)
+fmt.Println(r.Result())
+// Output: abcdef
 ```
 #### FlatMap
 ```go
@@ -146,8 +146,32 @@ r = future.FlatMap(func(a string) Future[string] {
 
 time.Sleep(time.Millisecond * 50)
 
-fmt.Println(r.Value())
-// Output: Some(abcdef)
+fmt.Println(r.Result())
+// Output: abcdef
+```
+#### Apply (Applicative)
+```go
+future1 = FutureValue(func() int {
+	time.Sleep(time.Millisecond * 10)
+	return 123
+})
+
+future2 = FutureValue(func() bool {
+	time.Sleep(time.Millisecond * 10)
+	return true
+})
+
+r = ApplyFuture2(future1, future2, func(a int, b bool) Future[string] {
+	return FutureValue(func() string {
+		time.Sleep(time.Millisecond * 10)
+		return fmt.Sprint(a) + " " + fmt.Sprint(b)
+	})
+})
+
+time.Sleep(time.Millisecond * 60)
+
+fmt.Println(r.Result())
+// Output: 123 true
 ```
 #### OnComplete
 ```go

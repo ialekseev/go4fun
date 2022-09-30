@@ -9,28 +9,27 @@ type Option[A any] struct {
 	defined bool
 }
 
-// Returns a Some containing a result of applying a function f(A)=>B to Option[A]'s value if the Option is nonempty. Otherwise returns None.
-// An Alias for Map function.
-func ApplyOption1[A, B any](option Option[A], f func(A) B) Option[B] {
-	return MapOption(option, f)
+// Returns a result of applying a function f(A)=>Option[B] to this Option's value if this Option is nonempty. An alias for FlatMap function.
+func ApplyOption1[A, B any](option Option[A], f func(A) Option[B]) Option[B] {
+	return FlatMapOption(option, f)
 }
 
-// Returns a Some containing a result of applying a binary function f(A,B)=>C to Option[A] & Option[B]'s values if both Options are nonempty. Otherwise returns None.
-func ApplyOption2[A, B, C any](optionA Option[A], optionB Option[B], f func(A, B) C) Option[C] {
+// Returns a Some containing a result of applying a binary function f(A,B)=>Option[C] to Option[A] & Option[B]'s values if both Options are nonempty. Otherwise returns None.
+func ApplyOption2[A, B, C any](optionA Option[A], optionB Option[B], f func(A, B) Option[C]) Option[C] {
 	bc := MapOption(optionA, Curry2(f))
-	return FlatMapOption(bc, func(bc func(B) C) Option[C] {
-		return MapOption(optionB, func(b B) C {
+	return FlatMapOption(bc, func(bc func(B) Option[C]) Option[C] {
+		return FlatMapOption(optionB, func(b B) Option[C] {
 			return bc(b)
 		})
 	})
 }
 
-// Returns a Some containing a result of applying a function of 3 arguments f(A,B,C)=>D to Option[A] & Option[B] & Option[C]'s values if all 3 Options are nonempty. Otherwise returns None.
-func ApplyOption3[A, B, C, D any](optionA Option[A], optionB Option[B], optionC Option[C], f func(A, B, C) D) Option[D] {
+// Returns a Some containing a result of applying a function of 3 arguments f(A,B,C)=>Option[D] to Option[A] & Option[B] & Option[C]'s values if all 3 Options are nonempty. Otherwise returns None.
+func ApplyOption3[A, B, C, D any](optionA Option[A], optionB Option[B], optionC Option[C], f func(A, B, C) Option[D]) Option[D] {
 	bcd := MapOption(optionA, Curry3(f))
-	return FlatMapOption(bcd, func(bcd func(B) func(C) D) Option[D] {
+	return FlatMapOption(bcd, func(bcd func(B) func(C) Option[D]) Option[D] {
 		return FlatMapOption(optionB, func(b B) Option[D] {
-			return MapOption(optionC, func(c C) D {
+			return FlatMapOption(optionC, func(c C) Option[D] {
 				return bcd(b)(c)
 			})
 		})

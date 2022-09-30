@@ -61,16 +61,16 @@ func ExampleFlatMapOption_eg3() {
 }
 
 func ExampleApplyOption3_eg1() {
-	r := ApplyOption3(Some(true), Some(10), Some("abc"), func(a bool, b int, c string) string {
-		return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+	r := ApplyOption3(Some(true), Some(10), Some("abc"), func(a bool, b int, c string) Option[string] {
+		return Some(fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c))
 	})
 	fmt.Println(r)
 	// Output: Some(true 10 abc)
 }
 
 func ExampleApplyOption3_eg2() {
-	r := ApplyOption3(None[bool](), Some(10), Some("abc"), func(a bool, b int, c string) string {
-		return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+	r := ApplyOption3(None[bool](), Some(10), Some("abc"), func(a bool, b int, c string) Option[string] {
+		return Some(fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c))
 	})
 	fmt.Println(r)
 	// Output: None

@@ -2,13 +2,14 @@ Go4Fun - GO for FUNctional programming
 ======================================
 ![build-test](https://github.com/ialekseev/go4fun/actions/workflows/main.yml/badge.svg)
 
-`Option`, `Sequence`, `Future`, `Either`, `Tuple` types with familiar combinators found in other functional-first languages: `Map`, `FlatMap`, `Apply (Applicative)`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... Alongside many other handy functions.
+`Option`, `Sequence`, `Future`, `Either`, `Tuple` types with familiar combinators found in other functional-first languages: `Map`, `FlatMap`, `Apply (Applicative)`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... alongside many other handy functions. And also: `Trampoline`, `Currying`, `Function Composition`...
 
 # Examples
 - [Option](https://github.com/ialekseev/go4fun#option)
 - [Sequence](https://github.com/ialekseev/go4fun#sequence)
 - [Future](https://github.com/ialekseev/go4fun#future)
 - [Either](https://github.com/ialekseev/go4fun#either)
+- [Trampoline](https://github.com/ialekseev/go4fun#trampoline)
 - [Currying](https://github.com/ialekseev/go4fun#currying)
 - [Function Composition](https://github.com/ialekseev/go4fun#function-composition)
 
@@ -214,6 +215,31 @@ fmt.Println(r)
 r = Left[int, string](-1).ToOption()
 fmt.Println(r)
 // Output: None
+```
+
+## Trampoline
+```go
+// Recursion without Trampoline:
+func summation(n, current uint64) uint64 {
+	if n < 1 {
+		return current
+	}
+	return summation(n-1, n+current)
+}
+summation(100000000, 0)
+// fatal error: stack overflow
+
+// Recursion with Trampoline:
+func summationT(n, current uint64) Trampoline[uint64] {
+	if n < 1 {
+		return DoneTrampolining(current)
+	}
+	return MoreTrampolining(func() Trampoline[uint64] {
+		return summationT(n-1, n+current)
+	})
+}
+summationT(100000000, 0).Run()
+// Output: 5000000050000000
 ```
 
 ## Currying

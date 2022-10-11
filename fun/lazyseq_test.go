@@ -6,8 +6,37 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLazySeqMap(t *testing.T) {
+func TestLazySeqFilter(t *testing.T) {
+	assert.Equal(t, Seq[int]{2, 4, 6}, Seq[int]{2, 3, 4, 5, 6}.Lazy().Filter(func(a int) bool { return a%2 == 0 }).Strict())
+	assert.Equal(t, Seq[int]{}, Seq[int]{2, 3, 4, 5, 6}.Lazy().Filter(func(a int) bool { return a > 6 }).Strict())
+	assert.Equal(t, Seq[int]{}, Seq[int]{}.Lazy().Filter(func(a int) bool { return a > 0 }).Strict())
+	assert.Nil(t, nilSeq[int]().Lazy().Filter(func(a int) bool { return a > 0 }).Strict())
+}
 
+func TestLazySeqFilterNot(t *testing.T) {
+	assert.Equal(t, Seq[int]{3, 5}, Seq[int]{2, 3, 4, 5, 6}.Lazy().FilterNot(func(a int) bool { return a%2 == 0 }).Strict())
+	assert.Equal(t, Seq[int]{}, Seq[int]{2, 3, 4, 5, 6}.Lazy().FilterNot(func(a int) bool { return a >= 2 }).Strict())
+	assert.Equal(t, Seq[int]{}, Seq[int]{}.Lazy().FilterNot(func(a int) bool { return a > 0 }).Strict())
+	assert.Nil(t, nilSeq[int]().Lazy().FilterNot(func(a int) bool { return a > 0 }).Strict())
+}
+
+func TestLazySeqLazySeqFromSeq(t *testing.T) {
+	//given
+	seq := Seq[int]{2, 4, 5}
+
+	//when
+	lazy := LazySeqFromSeq(seq)
+
+	//then
+	assert.Equal(t, seq, lazy.internal)
+	assert.Equal(t, 0, *lazy.currentIndex)
+	assert.NotNil(t, lazy.next)
+}
+
+func TestLazySeqMap(t *testing.T) {
+	assert.Equal(t, Seq[string]{"a!", "b!", "c!"}, Seq[string]{"a", "b", "c"}.Lazy().Map(func(a string) string { return a + "!" }).Strict())
+	assert.Equal(t, Seq[string]{}, Seq[string]{}.Lazy().Map(func(a string) string { return a + "!" }).Strict())
+	assert.Nil(t, nilSeq[string]().Lazy().Map(func(a string) string { return a + "!" }).Strict())
 }
 
 func TestLazySeqNext(t *testing.T) {

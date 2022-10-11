@@ -176,7 +176,7 @@ func (seq Seq[A]) IsEmpty() bool {
 
 // Converts this Sequence to Lazy Sequence
 func (seq Seq[A]) Lazy() LazySeq[A] {
-	return LazySeqFromSlice(seq)
+	return LazySeqFromSeq(seq)
 }
 
 // Returns the length of the Sequence. An alias for built-in len function.

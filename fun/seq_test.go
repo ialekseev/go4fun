@@ -135,6 +135,19 @@ func TestSeqIsEmpty(t *testing.T) {
 	assert.False(t, Seq[int]{1}.IsEmpty())
 }
 
+func TestSeqLazy(t *testing.T) {
+	//given
+	seq := Seq[int]{2, 4, 5}
+
+	//when
+	lazy := seq.Lazy()
+
+	//then
+	assert.Equal(t, seq, lazy.internal)
+	assert.Equal(t, 0, *lazy.currentIndex)
+	assert.NotNil(t, lazy.next)
+}
+
 func TestSeqLength(t *testing.T) {
 	assert.Equal(t, 3, Seq[int]{1, 2, 3}.Length())
 	assert.Equal(t, 0, Seq[int]{}.Length())

@@ -1,19 +1,19 @@
 package fun
 
 type LazySeq[A any] struct {
-	internal     Seq[A]
-	currentIndex *int
-	next         func(seq Seq[A], currentIndex *int) Option[A]
+	currentIndex              *int
+	next                      func() Option[A]
+	underlyingSeqCapacityHint int
 }
 
 func (lazySeq LazySeq[A]) Filter(f func(A) bool) LazySeq[A] {
 	nextF := lazySeq.next
-	lazySeq.next = func(s Seq[A], currentIndex *int) Option[A] {
+	lazySeq.next = func() Option[A] {
 		for {
-			current := nextF(s, currentIndex)
+			current := nextF()
 			switch {
 			case current.IsDefined() && f(current.Get()):
-				*currentIndex = *currentIndex + 1
+				*lazySeq.currentIndex = *lazySeq.currentIndex + 1
 				return current
 			case current.IsDefined() && !f(current.Get()):
 				continue
@@ -29,37 +29,49 @@ func (lazySeq LazySeq[A]) FilterNot(f func(A) bool) LazySeq[A] {
 	return lazySeq.Filter(func(a A) bool { return !f(a) })
 }
 
+// func (lazySeq LazySeq[A]) FlatMap(f func(A) LazySeq[A]) LazySeq[A] {
+// 	nextF := lazySeq.next
+// 	lazySeq.next = func() Option[A] {
+
+// 		if n:=nextF(); n.IsDefined() {
+// 			flatMapped := f(n.Get())
+
+// 			flatMapped.n
+// 		}
+
+// 	}
+// 	return lazySeq
+// }
+
 func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {
-	nextF := func(s Seq[A], currentIndex *int) Option[A] {
-		if *currentIndex < seq.Length() {
-			current := seq[*currentIndex]
-			*currentIndex = *currentIndex + 1
+	lazySeq := LazySeq[A]{new(int), nil, cap(seq)}
+
+	lazySeq.next = func() Option[A] {
+		if *lazySeq.currentIndex < seq.Length() {
+			current := seq[*lazySeq.currentIndex]
+			*lazySeq.currentIndex = *lazySeq.currentIndex + 1
 			return Some(current)
 		} else {
 			return None[A]()
 		}
 	}
-	return LazySeq[A]{seq, new(int), nextF}
+	return lazySeq
 }
 
 func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
 	nextF := lazySeq.next
-	lazySeq.next = func(s Seq[A], currentIndex *int) Option[A] {
-		return nextF(s, currentIndex).Map(f)
+	lazySeq.next = func() Option[A] {
+		return nextF().Map(f)
 	}
 	return lazySeq
 }
 
 func (lazySeq LazySeq[A]) Next() Option[A] {
-	return lazySeq.next(lazySeq.internal, lazySeq.currentIndex)
+	return lazySeq.next()
 }
 
 func (lazySeq LazySeq[A]) Strict() Seq[A] {
-	if lazySeq.internal == nil {
-		return nil
-	}
-
-	result := make(Seq[A], 0, lazySeq.internal.Length())
+	result := make(Seq[A], 0, lazySeq.underlyingSeqCapacityHint)
 
 	for {
 		if next := lazySeq.Next(); next.IsDefined() {

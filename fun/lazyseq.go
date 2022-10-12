@@ -1,24 +1,24 @@
 package fun
 
-//-------Iterator------------
+//-------iterator------------
 
-type Iterator[A any] interface {
+type iterator[A any] interface {
 	hasMore() bool
 	next() A
 }
 
-//-------SeqIterator----------
+//-------seqIterator----------
 
-type SeqIterator[A any] struct {
+type seqIterator[A any] struct {
 	seq          Seq[A]
 	currentIndex *int
 }
 
-func (iterator SeqIterator[A]) hasMore() bool {
+func (iterator seqIterator[A]) hasMore() bool {
 	return *iterator.currentIndex < iterator.seq.Length()
 }
 
-func (iterator SeqIterator[A]) next() A {
+func (iterator seqIterator[A]) next() A {
 	current := iterator.seq[*iterator.currentIndex]
 	*iterator.currentIndex = *iterator.currentIndex + 1
 	return current
@@ -27,16 +27,16 @@ func (iterator SeqIterator[A]) next() A {
 //-------LazySeq--------------
 
 type LazySeq[A any] struct {
-	iterator      Iterator[A]
-	next          func(Iterator[A]) Option[A]
+	iterator      iterator[A]
+	next          func() Option[A]
 	knownCapacity int
 }
 
 func (lazySeq LazySeq[A]) Filter(f func(A) bool) LazySeq[A] {
 	nextF := lazySeq.next
-	lazySeq.next = func(iterator Iterator[A]) Option[A] {
+	lazySeq.next = func() Option[A] {
 		for {
-			current := nextF(iterator)
+			current := nextF()
 			switch {
 			case current.IsDefined() && f(current.Get()):
 				return current
@@ -50,16 +50,20 @@ func (lazySeq LazySeq[A]) Filter(f func(A) bool) LazySeq[A] {
 	return lazySeq
 }
 
+func (lazySeq LazySeq[A]) FlatMap(f func(A) LazySeq[A]) LazySeq[A] {
+	panic("Not Implemented")
+}
+
 func (lazySeq LazySeq[A]) FilterNot(f func(A) bool) LazySeq[A] {
 	return lazySeq.Filter(func(a A) bool { return !f(a) })
 }
 
 func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {
-	lazySeq := LazySeq[A]{SeqIterator[A]{seq, new(int)}, nil, cap(seq)}
+	lazySeq := LazySeq[A]{seqIterator[A]{seq, new(int)}, nil, cap(seq)}
 
-	lazySeq.next = func(iterator Iterator[A]) Option[A] {
-		if iterator.hasMore() {
-			return Some(iterator.next())
+	lazySeq.next = func() Option[A] {
+		if lazySeq.iterator.hasMore() {
+			return Some(lazySeq.iterator.next())
 		} else {
 			return None[A]()
 		}
@@ -69,14 +73,14 @@ func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {
 
 func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
 	nextF := lazySeq.next
-	lazySeq.next = func(iterator Iterator[A]) Option[A] {
-		return nextF(iterator).Map(f)
+	lazySeq.next = func() Option[A] {
+		return nextF().Map(f)
 	}
 	return lazySeq
 }
 
 func (lazySeq LazySeq[A]) Next() Option[A] {
-	return lazySeq.next(lazySeq.iterator)
+	return lazySeq.next()
 }
 
 func (lazySeq LazySeq[A]) Strict() Seq[A] {

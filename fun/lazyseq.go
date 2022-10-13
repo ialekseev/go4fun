@@ -3,7 +3,6 @@ package fun
 //-------iterator------------
 
 type iterator[A any] interface {
-	hasMore() bool
 	next() Option[A]
 }
 
@@ -14,14 +13,14 @@ type seqIterator[A any] struct {
 	currentIndex *int
 }
 
-func (iterator seqIterator[A]) hasMore() bool {
-	return *iterator.currentIndex < iterator.seq.Length()
-}
-
 func (iterator seqIterator[A]) next() Option[A] {
-	current := iterator.seq[*iterator.currentIndex]
-	*iterator.currentIndex = *iterator.currentIndex + 1
-	return Some(current)
+	if *iterator.currentIndex < iterator.seq.Length() {
+		current := iterator.seq[*iterator.currentIndex]
+		*iterator.currentIndex = *iterator.currentIndex + 1
+		return Some(current)
+	} else {
+		return None[A]()
+	}
 }
 
 //-------filterIterator----------
@@ -31,15 +30,18 @@ type filterIterator[A any] struct {
 	filterF       func(A) bool
 }
 
-func (iterator filterIterator[A]) hasMore() bool {
-	return iterator.inputIterator.hasMore()
-}
-
 func (iterator filterIterator[A]) next() Option[A] {
-	for iterator.inputIterator.hasMore() {
-		return iterator.inputIterator.next().Filter(iterator.filterF)
+	for {
+		next := iterator.inputIterator.next()
+		switch {
+		case next.IsDefined() && iterator.filterF(next.Get()):
+			return next
+		case next.IsDefined() && !iterator.filterF(next.Get()):
+			continue
+		default:
+			return None[A]()
+		}
 	}
-	return None[A]()
 }
 
 //-------mapIterator----------
@@ -49,16 +51,8 @@ type mapIterator[A any] struct {
 	mapF          func(A) A
 }
 
-func (iterator mapIterator[A]) hasMore() bool {
-	return iterator.inputIterator.hasMore()
-}
-
 func (iterator mapIterator[A]) next() Option[A] {
-	if iterator.inputIterator.hasMore() {
-		return iterator.inputIterator.next().Map(iterator.mapF)
-	} else {
-		return None[A]()
-	}
+	return iterator.inputIterator.next().Map(iterator.mapF)
 }
 
 //-------LazySeq--------------

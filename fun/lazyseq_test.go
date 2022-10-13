@@ -29,7 +29,6 @@ func TestLazySeqLazySeqFromSeq(t *testing.T) {
 
 	//then
 	assert.NotNil(t, lazy.iterator)
-	assert.NotNil(t, lazy.next)
 	assert.Equal(t, 3, lazy.knownCapacity)
 }
 

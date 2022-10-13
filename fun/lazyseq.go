@@ -4,7 +4,7 @@ package fun
 
 type iterator[A any] interface {
 	hasMore() bool
-	next() A
+	next() Option[A]
 }
 
 //-------seqIterator----------
@@ -18,35 +18,58 @@ func (iterator seqIterator[A]) hasMore() bool {
 	return *iterator.currentIndex < iterator.seq.Length()
 }
 
-func (iterator seqIterator[A]) next() A {
+func (iterator seqIterator[A]) next() Option[A] {
 	current := iterator.seq[*iterator.currentIndex]
 	*iterator.currentIndex = *iterator.currentIndex + 1
-	return current
+	return Some(current)
+}
+
+//-------filterIterator----------
+
+type filterIterator[A any] struct {
+	inputIterator iterator[A]
+	filterF       func(A) bool
+}
+
+func (iterator filterIterator[A]) hasMore() bool {
+	return iterator.inputIterator.hasMore()
+}
+
+func (iterator filterIterator[A]) next() Option[A] {
+	for iterator.inputIterator.hasMore() {
+		return iterator.inputIterator.next().Filter(iterator.filterF)
+	}
+	return None[A]()
+}
+
+//-------mapIterator----------
+
+type mapIterator[A any] struct {
+	inputIterator iterator[A]
+	mapF          func(A) A
+}
+
+func (iterator mapIterator[A]) hasMore() bool {
+	return iterator.inputIterator.hasMore()
+}
+
+func (iterator mapIterator[A]) next() Option[A] {
+	if iterator.inputIterator.hasMore() {
+		return iterator.inputIterator.next().Map(iterator.mapF)
+	} else {
+		return None[A]()
+	}
 }
 
 //-------LazySeq--------------
 
 type LazySeq[A any] struct {
 	iterator      iterator[A]
-	next          func() Option[A]
 	knownCapacity int
 }
 
 func (lazySeq LazySeq[A]) Filter(f func(A) bool) LazySeq[A] {
-	nextF := lazySeq.next
-	lazySeq.next = func() Option[A] {
-		for {
-			current := nextF()
-			switch {
-			case current.IsDefined() && f(current.Get()):
-				return current
-			case current.IsDefined() && !f(current.Get()):
-				continue
-			default:
-				return None[A]()
-			}
-		}
-	}
+	lazySeq.iterator = filterIterator[A]{lazySeq.iterator, f}
 	return lazySeq
 }
 
@@ -59,28 +82,16 @@ func (lazySeq LazySeq[A]) FilterNot(f func(A) bool) LazySeq[A] {
 }
 
 func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {
-	lazySeq := LazySeq[A]{seqIterator[A]{seq, new(int)}, nil, cap(seq)}
-
-	lazySeq.next = func() Option[A] {
-		if lazySeq.iterator.hasMore() {
-			return Some(lazySeq.iterator.next())
-		} else {
-			return None[A]()
-		}
-	}
-	return lazySeq
+	return LazySeq[A]{seqIterator[A]{seq, new(int)}, cap(seq)}
 }
 
 func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
-	nextF := lazySeq.next
-	lazySeq.next = func() Option[A] {
-		return nextF().Map(f)
-	}
+	lazySeq.iterator = mapIterator[A]{lazySeq.iterator, f}
 	return lazySeq
 }
 
 func (lazySeq LazySeq[A]) Next() Option[A] {
-	return lazySeq.next()
+	return lazySeq.iterator.next()
 }
 
 func (lazySeq LazySeq[A]) Strict() Seq[A] {

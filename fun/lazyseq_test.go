@@ -10,14 +10,20 @@ func TestLazySeqFilter(t *testing.T) {
 	assert.Equal(t, Seq[int]{2, 4, 6}, Seq[int]{2, 3, 4, 5, 6}.Lazy().Filter(func(a int) bool { return a%2 == 0 }).Strict())
 	assert.Equal(t, Seq[int]{}, Seq[int]{2, 3, 4, 5, 6}.Lazy().Filter(func(a int) bool { return a > 6 }).Strict())
 	assert.Equal(t, Seq[int]{}, Seq[int]{}.Lazy().Filter(func(a int) bool { return a > 0 }).Strict())
-	assert.Equal(t, Seq[int]{}, nilSeq[int]().Lazy().Filter(func(a int) bool { return a > 0 }).Strict())
+	assert.Nil(t, nilSeq[int]().Lazy().Filter(func(a int) bool { return a > 0 }).Strict())
 }
 
 func TestLazySeqFilterNot(t *testing.T) {
 	assert.Equal(t, Seq[int]{3, 5}, Seq[int]{2, 3, 4, 5, 6}.Lazy().FilterNot(func(a int) bool { return a%2 == 0 }).Strict())
 	assert.Equal(t, Seq[int]{}, Seq[int]{2, 3, 4, 5, 6}.Lazy().FilterNot(func(a int) bool { return a >= 2 }).Strict())
 	assert.Equal(t, Seq[int]{}, Seq[int]{}.Lazy().FilterNot(func(a int) bool { return a > 0 }).Strict())
-	assert.Equal(t, Seq[int]{}, nilSeq[int]().Lazy().FilterNot(func(a int) bool { return a > 0 }).Strict())
+	assert.Nil(t, nilSeq[int]().Lazy().FilterNot(func(a int) bool { return a > 0 }).Strict())
+}
+
+func TestLazySeqFlatMap(t *testing.T) {
+	assert.Equal(t, Seq[int]{1, 1, 2, 2, 3, 3}, Seq[int]{1, 2, 3}.Lazy().FlatMap(func(a int) LazySeq[int] { return Seq[int]{a, a}.Lazy() }).Strict())
+	assert.Equal(t, Seq[int]{}, Seq[int]{}.Lazy().FlatMap(func(a int) LazySeq[int] { return Seq[int]{a, a}.Lazy() }).Strict())
+	assert.Nil(t, nilSeq[int]().Lazy().FlatMap(func(a int) LazySeq[int] { return Seq[int]{a, a}.Lazy() }).Strict())
 }
 
 func TestLazySeqLazySeqFromSeq(t *testing.T) {
@@ -35,7 +41,7 @@ func TestLazySeqLazySeqFromSeq(t *testing.T) {
 func TestLazySeqMap(t *testing.T) {
 	assert.Equal(t, Seq[string]{"a!", "b!", "c!"}, Seq[string]{"a", "b", "c"}.Lazy().Map(func(a string) string { return a + "!" }).Strict())
 	assert.Equal(t, Seq[string]{}, Seq[string]{}.Lazy().Map(func(a string) string { return a + "!" }).Strict())
-	assert.Equal(t, Seq[string]{}, nilSeq[string]().Lazy().Map(func(a string) string { return a + "!" }).Strict())
+	assert.Nil(t, nilSeq[string]().Lazy().Map(func(a string) string { return a + "!" }).Strict())
 }
 
 func TestLazySeqNext(t *testing.T) {
@@ -57,5 +63,5 @@ func TestLazySeqNext(t *testing.T) {
 func TestLazySeqStrict(t *testing.T) {
 	assert.Equal(t, Seq[int]{2, 4, 6, 8}, Seq[int]{2, 4, 6, 8}.Lazy().Strict())
 	assert.Equal(t, Seq[int]{}, Seq[int]{}.Lazy().Strict())
-	assert.Equal(t, Seq[int]{}, nilSeq[int]().Lazy().Strict())
+	assert.Nil(t, nilSeq[int]().Lazy().Strict())
 }

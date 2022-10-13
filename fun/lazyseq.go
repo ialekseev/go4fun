@@ -60,23 +60,23 @@ func (iterator mapIterator[A]) next() Option[A] {
 type flatMapIterator[A any] struct {
 	inputIterator Iterator[A]
 	flatMapF      func(A) Iterator[A]
-	fmIterator    Iterator[A]
+	fmIterator    *Iterator[A]
 }
 
 func (iterator flatMapIterator[A]) setNewFmIteratorAndMove() Option[A] {
 	next := iterator.inputIterator.next()
 	if next.IsDefined() {
-		iterator.fmIterator = iterator.flatMapF(next.Get())
-		return iterator.fmIterator.next()
+		*iterator.fmIterator = iterator.flatMapF(next.Get())
+		return (*iterator.fmIterator).next()
 	}
 	return None[A]()
 }
 
 func (iterator flatMapIterator[A]) next() Option[A] {
-	if iterator.fmIterator == nil {
+	if *iterator.fmIterator == nil {
 		return iterator.setNewFmIteratorAndMove()
 	} else {
-		nextFm := iterator.fmIterator.next()
+		nextFm := (*iterator.fmIterator).next()
 		if nextFm.IsEmpty() {
 			return iterator.setNewFmIteratorAndMove()
 		} else {
@@ -90,6 +90,7 @@ func (iterator flatMapIterator[A]) next() Option[A] {
 type LazySeq[A any] struct {
 	iterator      Iterator[A]
 	knownCapacity int
+	nilUnderlying bool
 }
 
 func (lazySeq LazySeq[A]) Filter(f func(A) bool) LazySeq[A] {
@@ -97,8 +98,11 @@ func (lazySeq LazySeq[A]) Filter(f func(A) bool) LazySeq[A] {
 	return lazySeq
 }
 
-func (lazySeq LazySeq[A]) FlatMap(f func(A) Iterator[A]) LazySeq[A] {
-	lazySeq.iterator = flatMapIterator[A]{lazySeq.iterator, f, nil}
+func (lazySeq LazySeq[A]) FlatMap(f func(A) LazySeq[A]) LazySeq[A] {
+	fI := func(a A) Iterator[A] {
+		return f(a).iterator
+	}
+	lazySeq.iterator = flatMapIterator[A]{lazySeq.iterator, fI, new(Iterator[A])}
 	return lazySeq
 }
 
@@ -107,7 +111,7 @@ func (lazySeq LazySeq[A]) FilterNot(f func(A) bool) LazySeq[A] {
 }
 
 func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {
-	return LazySeq[A]{seqIterator[A]{seq, new(int)}, cap(seq)}
+	return LazySeq[A]{seqIterator[A]{seq, new(int)}, cap(seq), seq == nil}
 }
 
 func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
@@ -120,6 +124,10 @@ func (lazySeq LazySeq[A]) Next() Option[A] {
 }
 
 func (lazySeq LazySeq[A]) Strict() Seq[A] {
+	if lazySeq.nilUnderlying {
+		return nil
+	}
+
 	result := make(Seq[A], 0, lazySeq.knownCapacity)
 
 	for {

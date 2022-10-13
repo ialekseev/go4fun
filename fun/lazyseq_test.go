@@ -1,6 +1,7 @@
 package fun
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,6 +27,12 @@ func TestLazySeqFlatMap(t *testing.T) {
 	assert.Nil(t, nilSeq[int]().Lazy().FlatMap(func(a int) LazySeq[int] { return Seq[int]{a, a}.Lazy() }).Strict())
 }
 
+func TestLazySeqFlatMatLazySeq(t *testing.T) {
+	assert.Equal(t, Seq[string]{"1", "1", "2", "2", "3", "3"}, FlatMapLazySeq(Seq[int]{1, 2, 3}.Lazy(), func(a int) LazySeq[string] { return Seq[string]{fmt.Sprint(a), fmt.Sprint(a)}.Lazy() }).Strict())
+	assert.Equal(t, Seq[string]{}, FlatMapLazySeq(Seq[int]{}.Lazy(), func(a int) LazySeq[string] { return Seq[string]{fmt.Sprint(a), fmt.Sprint(a)}.Lazy() }).Strict())
+	assert.Nil(t, FlatMapLazySeq(nilSeq[int]().Lazy(), func(a int) LazySeq[string] { return Seq[string]{fmt.Sprint(a), fmt.Sprint(a)}.Lazy() }).Strict())
+}
+
 func TestLazySeqLazySeqFromSeq(t *testing.T) {
 	//given
 	seq := Seq[int]{2, 4, 5}
@@ -42,6 +49,12 @@ func TestLazySeqMap(t *testing.T) {
 	assert.Equal(t, Seq[string]{"a!", "b!", "c!"}, Seq[string]{"a", "b", "c"}.Lazy().Map(func(a string) string { return a + "!" }).Strict())
 	assert.Equal(t, Seq[string]{}, Seq[string]{}.Lazy().Map(func(a string) string { return a + "!" }).Strict())
 	assert.Nil(t, nilSeq[string]().Lazy().Map(func(a string) string { return a + "!" }).Strict())
+}
+
+func TestLazySeqMapLazySeq(t *testing.T) {
+	assert.Equal(t, Seq[string]{"1", "2", "3"}, MapLazySeq(Seq[int]{1, 2, 3}.Lazy(), func(a int) string { return fmt.Sprint(a) }).Strict())
+	assert.Equal(t, Seq[string]{}, MapLazySeq(Seq[int]{}.Lazy(), func(a int) string { return fmt.Sprint(a) }).Strict())
+	assert.Nil(t, MapLazySeq(nilSeq[int]().Lazy(), func(a int) string { return fmt.Sprint(a) }).Strict())
 }
 
 func TestLazySeqNext(t *testing.T) {

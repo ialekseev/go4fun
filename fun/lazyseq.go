@@ -46,33 +46,33 @@ func (iterator filterIterator[A]) next() Option[A] {
 
 //-------mapIterator----------
 
-type mapIterator[A any] struct {
+type mapIterator[A, B any] struct {
 	inputIterator Iterator[A]
-	mapF          func(A) A
+	mapF          func(A) B
 }
 
-func (iterator mapIterator[A]) next() Option[A] {
-	return iterator.inputIterator.next().Map(iterator.mapF)
+func (iterator mapIterator[A, B]) next() Option[B] {
+	return MapOption(iterator.inputIterator.next(), iterator.mapF)
 }
 
 //-------flatMapIterator----------
 
-type flatMapIterator[A any] struct {
+type flatMapIterator[A, B any] struct {
 	inputIterator Iterator[A]
-	flatMapF      func(A) Iterator[A]
-	fmIterator    *Iterator[A]
+	flatMapF      func(A) Iterator[B]
+	fmIterator    *Iterator[B]
 }
 
-func (iterator flatMapIterator[A]) setNewFmIteratorAndMove() Option[A] {
+func (iterator flatMapIterator[A, B]) setNewFmIteratorAndMove() Option[B] {
 	next := iterator.inputIterator.next()
 	if next.IsDefined() {
 		*iterator.fmIterator = iterator.flatMapF(next.Get())
 		return (*iterator.fmIterator).next()
 	}
-	return None[A]()
+	return None[B]()
 }
 
-func (iterator flatMapIterator[A]) next() Option[A] {
+func (iterator flatMapIterator[A, B]) next() Option[B] {
 	if *iterator.fmIterator == nil {
 		return iterator.setNewFmIteratorAndMove()
 	} else {
@@ -99,11 +99,15 @@ func (lazySeq LazySeq[A]) Filter(f func(A) bool) LazySeq[A] {
 }
 
 func (lazySeq LazySeq[A]) FlatMap(f func(A) LazySeq[A]) LazySeq[A] {
-	fI := func(a A) Iterator[A] {
+	return FlatMapLazySeq(lazySeq, f)
+}
+
+func FlatMapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) LazySeq[B]) LazySeq[B] {
+	fI := func(a A) Iterator[B] {
 		return f(a).iterator
 	}
-	lazySeq.iterator = flatMapIterator[A]{lazySeq.iterator, fI, new(Iterator[A])}
-	return lazySeq
+	newIterator := flatMapIterator[A, B]{lazySeq.iterator, fI, new(Iterator[B])}
+	return LazySeq[B]{newIterator, lazySeq.knownCapacity, lazySeq.nilUnderlying}
 }
 
 func (lazySeq LazySeq[A]) FilterNot(f func(A) bool) LazySeq[A] {
@@ -115,8 +119,12 @@ func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {
 }
 
 func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
-	lazySeq.iterator = mapIterator[A]{lazySeq.iterator, f}
-	return lazySeq
+	return MapLazySeq(lazySeq, f)
+}
+
+func MapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) B) LazySeq[B] {
+	newIterator := mapIterator[A, B]{lazySeq.iterator, f}
+	return LazySeq[B]{newIterator, lazySeq.knownCapacity, lazySeq.nilUnderlying}
 }
 
 func (lazySeq LazySeq[A]) Next() Option[A] {

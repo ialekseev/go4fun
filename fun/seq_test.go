@@ -143,8 +143,8 @@ func TestSeqLazy(t *testing.T) {
 	lazy := seq.Lazy()
 
 	//then
-	assert.NotNil(t, lazy.iterator)
-	assert.Equal(t, 3, lazy.knownCapacity)
+	assert.NotNil(t, lazy.Iterator)
+	assert.Equal(t, 3, lazy.KnownCapacity)
 }
 
 func TestSeqLength(t *testing.T) {

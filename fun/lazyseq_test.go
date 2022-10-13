@@ -41,8 +41,8 @@ func TestLazySeqLazySeqFromSeq(t *testing.T) {
 	lazy := LazySeqFromSeq(seq)
 
 	//then
-	assert.NotNil(t, lazy.iterator)
-	assert.Equal(t, 3, lazy.knownCapacity)
+	assert.NotNil(t, lazy.Iterator)
+	assert.Equal(t, 3, lazy.KnownCapacity)
 }
 
 func TestLazySeqMap(t *testing.T) {

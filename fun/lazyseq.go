@@ -3,7 +3,7 @@ package fun
 //-------Iterator------------
 
 type Iterator[A any] interface {
-	next() Option[A]
+	Next() Option[A]
 }
 
 //-------seqIterator----------
@@ -13,7 +13,7 @@ type seqIterator[A any] struct {
 	currentIndex *int
 }
 
-func (iterator seqIterator[A]) next() Option[A] {
+func (iterator seqIterator[A]) Next() Option[A] {
 	if *iterator.currentIndex < iterator.seq.Length() {
 		current := iterator.seq[*iterator.currentIndex]
 		*iterator.currentIndex = *iterator.currentIndex + 1
@@ -30,9 +30,9 @@ type filterIterator[A any] struct {
 	filterF       func(A) bool
 }
 
-func (iterator filterIterator[A]) next() Option[A] {
+func (iterator filterIterator[A]) Next() Option[A] {
 	for {
-		next := iterator.inputIterator.next()
+		next := iterator.inputIterator.Next()
 		switch {
 		case next.IsDefined() && iterator.filterF(next.Get()):
 			return next
@@ -51,8 +51,8 @@ type mapIterator[A, B any] struct {
 	mapF          func(A) B
 }
 
-func (iterator mapIterator[A, B]) next() Option[B] {
-	return MapOption(iterator.inputIterator.next(), iterator.mapF)
+func (iterator mapIterator[A, B]) Next() Option[B] {
+	return MapOption(iterator.inputIterator.Next(), iterator.mapF)
 }
 
 //-------flatMapIterator----------
@@ -64,19 +64,19 @@ type flatMapIterator[A, B any] struct {
 }
 
 func (iterator flatMapIterator[A, B]) setNewFmIteratorAndMove() Option[B] {
-	next := iterator.inputIterator.next()
+	next := iterator.inputIterator.Next()
 	if next.IsDefined() {
 		*iterator.fmIterator = iterator.flatMapF(next.Get())
-		return (*iterator.fmIterator).next()
+		return (*iterator.fmIterator).Next()
 	}
 	return None[B]()
 }
 
-func (iterator flatMapIterator[A, B]) next() Option[B] {
+func (iterator flatMapIterator[A, B]) Next() Option[B] {
 	if *iterator.fmIterator == nil {
 		return iterator.setNewFmIteratorAndMove()
 	} else {
-		nextFm := (*iterator.fmIterator).next()
+		nextFm := (*iterator.fmIterator).Next()
 		if nextFm.IsEmpty() {
 			return iterator.setNewFmIteratorAndMove()
 		} else {
@@ -88,13 +88,13 @@ func (iterator flatMapIterator[A, B]) next() Option[B] {
 //-------LazySeq--------------
 
 type LazySeq[A any] struct {
-	iterator      Iterator[A]
-	knownCapacity int
-	nilUnderlying bool
+	Iterator      Iterator[A]
+	KnownCapacity int
+	NilUnderlying bool
 }
 
 func (lazySeq LazySeq[A]) Filter(f func(A) bool) LazySeq[A] {
-	lazySeq.iterator = filterIterator[A]{lazySeq.iterator, f}
+	lazySeq.Iterator = filterIterator[A]{lazySeq.Iterator, f}
 	return lazySeq
 }
 
@@ -104,10 +104,10 @@ func (lazySeq LazySeq[A]) FlatMap(f func(A) LazySeq[A]) LazySeq[A] {
 
 func FlatMapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) LazySeq[B]) LazySeq[B] {
 	fI := func(a A) Iterator[B] {
-		return f(a).iterator
+		return f(a).Iterator
 	}
-	newIterator := flatMapIterator[A, B]{lazySeq.iterator, fI, new(Iterator[B])}
-	return LazySeq[B]{newIterator, lazySeq.knownCapacity, lazySeq.nilUnderlying}
+	newIterator := flatMapIterator[A, B]{lazySeq.Iterator, fI, new(Iterator[B])}
+	return LazySeq[B]{newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
 }
 
 func (lazySeq LazySeq[A]) FilterNot(f func(A) bool) LazySeq[A] {
@@ -123,20 +123,20 @@ func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
 }
 
 func MapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) B) LazySeq[B] {
-	newIterator := mapIterator[A, B]{lazySeq.iterator, f}
-	return LazySeq[B]{newIterator, lazySeq.knownCapacity, lazySeq.nilUnderlying}
+	newIterator := mapIterator[A, B]{lazySeq.Iterator, f}
+	return LazySeq[B]{newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
 }
 
 func (lazySeq LazySeq[A]) Next() Option[A] {
-	return lazySeq.iterator.next()
+	return lazySeq.Iterator.Next()
 }
 
 func (lazySeq LazySeq[A]) Strict() Seq[A] {
-	if lazySeq.nilUnderlying {
+	if lazySeq.NilUnderlying {
 		return nil
 	}
 
-	result := make(Seq[A], 0, lazySeq.knownCapacity)
+	result := make(Seq[A], 0, lazySeq.KnownCapacity)
 
 	for {
 		if next := lazySeq.Next(); next.IsDefined() {

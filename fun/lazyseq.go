@@ -1,8 +1,8 @@
 package fun
 
-//-------iterator------------
+//-------Iterator------------
 
-type iterator[A any] interface {
+type Iterator[A any] interface {
 	next() Option[A]
 }
 
@@ -26,7 +26,7 @@ func (iterator seqIterator[A]) next() Option[A] {
 //-------filterIterator----------
 
 type filterIterator[A any] struct {
-	inputIterator iterator[A]
+	inputIterator Iterator[A]
 	filterF       func(A) bool
 }
 
@@ -47,7 +47,7 @@ func (iterator filterIterator[A]) next() Option[A] {
 //-------mapIterator----------
 
 type mapIterator[A any] struct {
-	inputIterator iterator[A]
+	inputIterator Iterator[A]
 	mapF          func(A) A
 }
 
@@ -55,10 +55,40 @@ func (iterator mapIterator[A]) next() Option[A] {
 	return iterator.inputIterator.next().Map(iterator.mapF)
 }
 
+//-------flatMapIterator----------
+
+type flatMapIterator[A any] struct {
+	inputIterator Iterator[A]
+	flatMapF      func(A) Iterator[A]
+	fmIterator    Iterator[A]
+}
+
+func (iterator flatMapIterator[A]) setNewFmIteratorAndMove() Option[A] {
+	next := iterator.inputIterator.next()
+	if next.IsDefined() {
+		iterator.fmIterator = iterator.flatMapF(next.Get())
+		return iterator.fmIterator.next()
+	}
+	return None[A]()
+}
+
+func (iterator flatMapIterator[A]) next() Option[A] {
+	if iterator.fmIterator == nil {
+		return iterator.setNewFmIteratorAndMove()
+	} else {
+		nextFm := iterator.fmIterator.next()
+		if nextFm.IsEmpty() {
+			return iterator.setNewFmIteratorAndMove()
+		} else {
+			return nextFm
+		}
+	}
+}
+
 //-------LazySeq--------------
 
 type LazySeq[A any] struct {
-	iterator      iterator[A]
+	iterator      Iterator[A]
 	knownCapacity int
 }
 
@@ -67,8 +97,9 @@ func (lazySeq LazySeq[A]) Filter(f func(A) bool) LazySeq[A] {
 	return lazySeq
 }
 
-func (lazySeq LazySeq[A]) FlatMap(f func(A) LazySeq[A]) LazySeq[A] {
-	panic("Not Implemented")
+func (lazySeq LazySeq[A]) FlatMap(f func(A) Iterator[A]) LazySeq[A] {
+	lazySeq.iterator = flatMapIterator[A]{lazySeq.iterator, f, nil}
+	return lazySeq
 }
 
 func (lazySeq LazySeq[A]) FilterNot(f func(A) bool) LazySeq[A] {

@@ -127,8 +127,17 @@ func MapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) B) LazySeq[B] {
 	return LazySeq[B]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
 }
 
-func (lazySeq LazySeq[A]) Next() Option[A] {
-	return lazySeq.Iterator.Next()
+func (lazySeq LazySeq[A]) Reduce(op func(A, A) A) A {
+	next := lazySeq.Iterator.Next()
+	if next.IsEmpty() {
+		return *new(A)
+	}
+
+	r := next.Get()
+	for next = lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
+		r = op(r, next.Get())
+	}
+	return r
 }
 
 func (lazySeq LazySeq[A]) Strict() Seq[A] {
@@ -137,13 +146,8 @@ func (lazySeq LazySeq[A]) Strict() Seq[A] {
 	}
 
 	result := make(Seq[A], 0, lazySeq.KnownCapacity)
-
-	for {
-		if next := lazySeq.Iterator.Next(); next.IsDefined() {
-			result = result.Append(next.Get())
-		} else {
-			break
-		}
+	for next := lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
+		result = result.Append(next.Get())
 	}
 	return result
 }

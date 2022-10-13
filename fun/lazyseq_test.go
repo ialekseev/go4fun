@@ -59,18 +59,18 @@ func TestLazySeqMapLazySeq(t *testing.T) {
 
 func TestLazySeqNext(t *testing.T) {
 	seq := Seq[int]{2, 4, 6, 8}.Lazy()
-	assert.Equal(t, Some(2), seq.Next())
-	assert.Equal(t, Some(4), seq.Next())
-	assert.Equal(t, Some(6), seq.Next())
-	assert.Equal(t, Some(8), seq.Next())
-	assert.Equal(t, None[int](), seq.Next())
-	assert.Equal(t, None[int](), seq.Next())
+	assert.Equal(t, Some(2), seq.Iterator.Next())
+	assert.Equal(t, Some(4), seq.Iterator.Next())
+	assert.Equal(t, Some(6), seq.Iterator.Next())
+	assert.Equal(t, Some(8), seq.Iterator.Next())
+	assert.Equal(t, None[int](), seq.Iterator.Next())
+	assert.Equal(t, None[int](), seq.Iterator.Next())
 
 	seq = Seq[int]{}.Lazy()
-	assert.Equal(t, None[int](), seq.Next())
+	assert.Equal(t, None[int](), seq.Iterator.Next())
 
 	seq = nilSeq[int]().Lazy()
-	assert.Equal(t, None[int](), seq.Next())
+	assert.Equal(t, None[int](), seq.Iterator.Next())
 }
 
 func TestLazySeqStrict(t *testing.T) {

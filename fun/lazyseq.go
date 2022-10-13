@@ -10,13 +10,13 @@ type Iterator[A any] interface {
 
 type seqIterator[A any] struct {
 	seq          Seq[A]
-	currentIndex *int
+	currentIndex int
 }
 
-func (iterator seqIterator[A]) Next() Option[A] {
-	if *iterator.currentIndex < iterator.seq.Length() {
-		current := iterator.seq[*iterator.currentIndex]
-		*iterator.currentIndex = *iterator.currentIndex + 1
+func (iterator *seqIterator[A]) Next() Option[A] {
+	if iterator.currentIndex < iterator.seq.Length() {
+		current := iterator.seq[iterator.currentIndex]
+		iterator.currentIndex = iterator.currentIndex + 1
 		return Some(current)
 	} else {
 		return None[A]()
@@ -30,7 +30,7 @@ type filterIterator[A any] struct {
 	filterF       func(A) bool
 }
 
-func (iterator filterIterator[A]) Next() Option[A] {
+func (iterator *filterIterator[A]) Next() Option[A] {
 	for {
 		next := iterator.inputIterator.Next()
 		switch {
@@ -51,7 +51,7 @@ type mapIterator[A, B any] struct {
 	mapF          func(A) B
 }
 
-func (iterator mapIterator[A, B]) Next() Option[B] {
+func (iterator *mapIterator[A, B]) Next() Option[B] {
 	return MapOption(iterator.inputIterator.Next(), iterator.mapF)
 }
 
@@ -60,23 +60,23 @@ func (iterator mapIterator[A, B]) Next() Option[B] {
 type flatMapIterator[A, B any] struct {
 	inputIterator Iterator[A]
 	flatMapF      func(A) Iterator[B]
-	fmIterator    *Iterator[B]
+	fmIterator    Iterator[B]
 }
 
-func (iterator flatMapIterator[A, B]) setNewFmIteratorAndMove() Option[B] {
+func (iterator *flatMapIterator[A, B]) setNewFmIteratorAndMove() Option[B] {
 	next := iterator.inputIterator.Next()
 	if next.IsDefined() {
-		*iterator.fmIterator = iterator.flatMapF(next.Get())
-		return (*iterator.fmIterator).Next()
+		iterator.fmIterator = iterator.flatMapF(next.Get())
+		return iterator.fmIterator.Next()
 	}
 	return None[B]()
 }
 
-func (iterator flatMapIterator[A, B]) Next() Option[B] {
-	if *iterator.fmIterator == nil {
+func (iterator *flatMapIterator[A, B]) Next() Option[B] {
+	if iterator.fmIterator == nil {
 		return iterator.setNewFmIteratorAndMove()
 	} else {
-		nextFm := (*iterator.fmIterator).Next()
+		nextFm := iterator.fmIterator.Next()
 		if nextFm.IsEmpty() {
 			return iterator.setNewFmIteratorAndMove()
 		} else {
@@ -94,8 +94,8 @@ type LazySeq[A any] struct {
 }
 
 func (lazySeq LazySeq[A]) Filter(f func(A) bool) LazySeq[A] {
-	lazySeq.Iterator = filterIterator[A]{lazySeq.Iterator, f}
-	return lazySeq
+	newIterator := filterIterator[A]{lazySeq.Iterator, f}
+	return LazySeq[A]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
 }
 
 func (lazySeq LazySeq[A]) FlatMap(f func(A) LazySeq[A]) LazySeq[A] {
@@ -106,8 +106,8 @@ func FlatMapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) LazySeq[B]) LazySeq[
 	fI := func(a A) Iterator[B] {
 		return f(a).Iterator
 	}
-	newIterator := flatMapIterator[A, B]{lazySeq.Iterator, fI, new(Iterator[B])}
-	return LazySeq[B]{newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
+	newIterator := flatMapIterator[A, B]{lazySeq.Iterator, fI, nil}
+	return LazySeq[B]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
 }
 
 func (lazySeq LazySeq[A]) FilterNot(f func(A) bool) LazySeq[A] {
@@ -115,7 +115,7 @@ func (lazySeq LazySeq[A]) FilterNot(f func(A) bool) LazySeq[A] {
 }
 
 func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {
-	return LazySeq[A]{seqIterator[A]{seq, new(int)}, cap(seq), seq == nil}
+	return LazySeq[A]{&seqIterator[A]{seq, 0}, cap(seq), seq == nil}
 }
 
 func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
@@ -124,7 +124,7 @@ func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
 
 func MapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) B) LazySeq[B] {
 	newIterator := mapIterator[A, B]{lazySeq.Iterator, f}
-	return LazySeq[B]{newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
+	return LazySeq[B]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
 }
 
 func (lazySeq LazySeq[A]) Next() Option[A] {
@@ -139,7 +139,7 @@ func (lazySeq LazySeq[A]) Strict() Seq[A] {
 	result := make(Seq[A], 0, lazySeq.KnownCapacity)
 
 	for {
-		if next := lazySeq.Next(); next.IsDefined() {
+		if next := lazySeq.Iterator.Next(); next.IsDefined() {
 			result = result.Append(next.Get())
 		} else {
 			break

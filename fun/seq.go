@@ -41,12 +41,7 @@ func EmptySeq[A any](capacity int) Seq[A] {
 
 // Returns false if this Sequence is empty or nil, otherwise true if the given predicate p holds for some of the elements of this Sequence, otherwise false
 func (seq Seq[A]) Exists(p func(A) bool) bool {
-	for _, e := range seq {
-		if p(e) {
-			return true
-		}
-	}
-	return false
+	return seq.Find(p).IsDefined()
 }
 
 // Returns a new Sequence consisting of all elements of this Sequence that satisfy the given predicate p. The order of the elements is preserved.
@@ -137,12 +132,7 @@ func FoldSeq[A, B any](seq Seq[A], z B, op func(B, A) B) B {
 
 // Returns true if this Sequence is empty or nil or the given predicate p holds for all elements of this Sequence, otherwise false.
 func (seq Seq[A]) ForAll(p func(A) bool) bool {
-	for _, e := range seq {
-		if !p(e) {
-			return false
-		}
-	}
-	return true
+	return !seq.Exists(func(a A) bool { return !p(a) })
 }
 
 // Applies a given procedure f to all elements of this Sequence.

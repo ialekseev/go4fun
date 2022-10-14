@@ -93,9 +93,26 @@ type LazySeq[A any] struct {
 	NilUnderlying bool
 }
 
-func (lazySeq LazySeq[A]) Filter(f func(A) bool) LazySeq[A] {
-	newIterator := filterIterator[A]{lazySeq.Iterator, f}
+func (lazySeq LazySeq[A]) Exists(p func(A) bool) bool {
+	return lazySeq.Find(p).IsDefined()
+}
+
+func (lazySeq LazySeq[A]) Filter(p func(A) bool) LazySeq[A] {
+	newIterator := filterIterator[A]{lazySeq.Iterator, p}
 	return LazySeq[A]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
+}
+
+func (lazySeq LazySeq[A]) FilterNot(p func(A) bool) LazySeq[A] {
+	return lazySeq.Filter(func(a A) bool { return !p(a) })
+}
+
+func (lazySeq LazySeq[A]) Find(p func(A) bool) Option[A] {
+	for next := lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
+		if next.Exists(p) {
+			return next
+		}
+	}
+	return None[A]()
 }
 
 func (lazySeq LazySeq[A]) FlatMap(f func(A) LazySeq[A]) LazySeq[A] {
@@ -110,8 +127,20 @@ func FlatMapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) LazySeq[B]) LazySeq[
 	return LazySeq[B]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
 }
 
-func (lazySeq LazySeq[A]) FilterNot(f func(A) bool) LazySeq[A] {
-	return lazySeq.Filter(func(a A) bool { return !f(a) })
+func (lazySeq LazySeq[A]) Fold(z A, op func(A, A) A) A {
+	return FoldLazySeq(lazySeq, z, op)
+}
+
+func FoldLazySeq[A, B any](lazySeq LazySeq[A], z B, op func(B, A) B) B {
+	r := z
+	for next := lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
+		r = op(r, next.Get())
+	}
+	return r
+}
+
+func (lazySeq LazySeq[A]) ForAll(p func(A) bool) bool {
+	return !lazySeq.Exists(func(a A) bool { return !p(a) })
 }
 
 func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {

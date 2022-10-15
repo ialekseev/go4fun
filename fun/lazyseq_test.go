@@ -86,6 +86,19 @@ func TestLazySeqHead(t *testing.T) {
 	assert.Equal(t, 0, nilSeq[int]().Lazy().Head())
 }
 
+func TestLazySeqHeadOption(t *testing.T) {
+	assert.Equal(t, Some("abc"), Seq[string]{"abc", "def", "ghi"}.Lazy().HeadOption())
+	assert.Equal(t, None[string](), Seq[string]{}.Lazy().HeadOption())
+	assert.Equal(t, None[string](), nilSeq[string]().Lazy().HeadOption())
+}
+
+func TestLazySeqIsEmpty(t *testing.T) {
+	assert.True(t, Seq[int]{}.Lazy().IsEmpty())
+	assert.True(t, nilSeq[int]().Lazy().IsEmpty())
+	assert.False(t, Seq[int]{1, 2, 3}.Lazy().IsEmpty())
+	assert.False(t, Seq[int]{1}.Lazy().IsEmpty())
+}
+
 func TestLazySeqLazySeqFromSeq(t *testing.T) {
 	//given
 	seq := Seq[int]{2, 4, 5}

@@ -153,6 +153,14 @@ func (lazySeq LazySeq[A]) Head() A {
 	return lazySeq.Iterator.Next().GetOrElse(*new(A))
 }
 
+func (lazySeq LazySeq[A]) HeadOption() Option[A] {
+	return lazySeq.Iterator.Next()
+}
+
+func (lazySeq LazySeq[A]) IsEmpty() bool {
+	return lazySeq.Iterator.Next().IsEmpty()
+}
+
 func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {
 	return LazySeq[A]{&seqIterator[A]{seq, 0}, cap(seq), seq == nil}
 }

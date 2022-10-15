@@ -165,6 +165,14 @@ func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {
 	return LazySeq[A]{&seqIterator[A]{seq, 0}, cap(seq), seq == nil}
 }
 
+func (lazySeq LazySeq[A]) Length() int {
+	count := 0
+	for next := lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
+		count = count + 1
+	}
+	return count
+}
+
 func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
 	return MapLazySeq(lazySeq, f)
 }
@@ -172,6 +180,26 @@ func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
 func MapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) B) LazySeq[B] {
 	newIterator := mapIterator[A, B]{lazySeq.Iterator, f}
 	return LazySeq[B]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
+}
+
+func MaxInLazySeq[A Ordered](lazySeq LazySeq[A]) A {
+	return lazySeq.Reduce(func(a1, a2 A) A {
+		if a1 > a2 {
+			return a1
+		} else {
+			return a2
+		}
+	})
+}
+
+func MinInLazySeq[A Ordered](lazySeq LazySeq[A]) A {
+	return lazySeq.Reduce(func(a1, a2 A) A {
+		if a1 < a2 {
+			return a1
+		} else {
+			return a2
+		}
+	})
 }
 
 func (lazySeq LazySeq[A]) Reduce(op func(A, A) A) A {

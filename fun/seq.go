@@ -192,7 +192,7 @@ func MapSeq[A, B any](seq Seq[A], f func(A) B) Seq[B] {
 }
 
 // Returns the largest element of this Sequence. Or a default value of type A if the Sequence is empty or nil.
-func Max[A Ordered](seq Seq[A]) A {
+func MaxInSeq[A Ordered](seq Seq[A]) A {
 	return seq.Reduce(func(a1, a2 A) A {
 		if a1 > a2 {
 			return a1
@@ -203,7 +203,7 @@ func Max[A Ordered](seq Seq[A]) A {
 }
 
 // Returns the smallest element of this Sequence. Or a default value of type A if the Sequence is empty or nil.
-func Min[A Ordered](seq Seq[A]) A {
+func MinInSeq[A Ordered](seq Seq[A]) A {
 	return seq.Reduce(func(a1, a2 A) A {
 		if a1 < a2 {
 			return a1

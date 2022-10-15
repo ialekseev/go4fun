@@ -166,18 +166,18 @@ func TestSeqMapSeq(t *testing.T) {
 	assert.Nil(t, MapSeq(nilSeq[int](), func(a int) string { return fmt.Sprint(a) }))
 }
 
-func TestSeqMax(t *testing.T) {
-	assert.Equal(t, 7, Max(Seq[int]{-1, 4, 7, 3, -4, 0, 2}))
-	assert.Equal(t, -2, Max(Seq[int]{-2}))
-	assert.Equal(t, 0, Max(Seq[int]{}))
-	assert.Equal(t, 0, Max(nilSeq[int]()))
+func TestSeqMaxInSeq(t *testing.T) {
+	assert.Equal(t, 7, MaxInSeq(Seq[int]{-1, 4, 7, 3, -4, 0, 2}))
+	assert.Equal(t, -2, MaxInSeq(Seq[int]{-2}))
+	assert.Equal(t, 0, MaxInSeq(Seq[int]{}))
+	assert.Equal(t, 0, MaxInSeq(nilSeq[int]()))
 }
 
-func TestSeqMin(t *testing.T) {
-	assert.Equal(t, -7, Min(Seq[int]{-1, 4, -7, 3, -4, 0, 2}))
-	assert.Equal(t, 4, Min(Seq[int]{4}))
-	assert.Equal(t, 0, Min(Seq[int]{}))
-	assert.Equal(t, 0, Min(nilSeq[int]()))
+func TestSeqMinInSeq(t *testing.T) {
+	assert.Equal(t, -7, MinInSeq(Seq[int]{-1, 4, -7, 3, -4, 0, 2}))
+	assert.Equal(t, 4, MinInSeq(Seq[int]{4}))
+	assert.Equal(t, 0, MinInSeq(Seq[int]{}))
+	assert.Equal(t, 0, MinInSeq(nilSeq[int]()))
 }
 
 func TestSeqNonEmpty(t *testing.T) {

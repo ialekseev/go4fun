@@ -111,6 +111,12 @@ func TestLazySeqLazySeqFromSeq(t *testing.T) {
 	assert.Equal(t, 3, lazy.KnownCapacity)
 }
 
+func TestLazySeqLength(t *testing.T) {
+	assert.Equal(t, 3, Seq[int]{1, 2, 3}.Lazy().Length())
+	assert.Equal(t, 0, Seq[int]{}.Lazy().Length())
+	assert.Equal(t, 0, nilSeq[int]().Lazy().Length())
+}
+
 func TestLazySeqMap(t *testing.T) {
 	assert.Equal(t, Seq[string]{"a!", "b!", "c!"}, Seq[string]{"a", "b", "c"}.Lazy().Map(func(a string) string { return a + "!" }).Strict())
 	assert.Equal(t, Seq[string]{}, Seq[string]{}.Lazy().Map(func(a string) string { return a + "!" }).Strict())
@@ -121,6 +127,20 @@ func TestLazySeqMapLazySeq(t *testing.T) {
 	assert.Equal(t, Seq[string]{"1", "2", "3"}, MapLazySeq(Seq[int]{1, 2, 3}.Lazy(), func(a int) string { return fmt.Sprint(a) }).Strict())
 	assert.Equal(t, Seq[string]{}, MapLazySeq(Seq[int]{}.Lazy(), func(a int) string { return fmt.Sprint(a) }).Strict())
 	assert.Nil(t, MapLazySeq(nilSeq[int]().Lazy(), func(a int) string { return fmt.Sprint(a) }).Strict())
+}
+
+func TestLazySeqMaxInLazySeq(t *testing.T) {
+	assert.Equal(t, 7, MaxInLazySeq(Seq[int]{-1, 4, 7, 3, -4, 0, 2}.Lazy()))
+	assert.Equal(t, -2, MaxInLazySeq(Seq[int]{-2}.Lazy()))
+	assert.Equal(t, 0, MaxInLazySeq(Seq[int]{}.Lazy()))
+	assert.Equal(t, 0, MaxInLazySeq(nilSeq[int]().Lazy()))
+}
+
+func TestLazySeqMinInLazySeq(t *testing.T) {
+	assert.Equal(t, -7, MinInLazySeq(Seq[int]{-1, 4, -7, 3, -4, 0, 2}.Lazy()))
+	assert.Equal(t, 4, MinInLazySeq(Seq[int]{4}.Lazy()))
+	assert.Equal(t, 0, MinInLazySeq(Seq[int]{}.Lazy()))
+	assert.Equal(t, 0, MinInLazySeq(nilSeq[int]().Lazy()))
 }
 
 func TestLazySeqNext(t *testing.T) {

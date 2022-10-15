@@ -70,6 +70,22 @@ func TestLazySeqForAll(t *testing.T) {
 	assert.False(t, Seq[int]{3, 5, 6, 8}.Lazy().ForAll(func(a int) bool { return a%2 == 0 }))
 }
 
+func TestLazySeqForeach(t *testing.T) {
+	//given
+	seq := EmptySeq[int](5)
+	//when
+	Seq[int]{1, 2, 3}.Lazy().Foreach(func(a int) { seq = seq.Append(a) })
+	//then
+	assert.Equal(t, Seq[int]{1, 2, 3}, seq)
+}
+
+func TestLazySeqHead(t *testing.T) {
+	assert.Equal(t, "abc", Seq[string]{"abc", "def", "ghi"}.Lazy().Head())
+	assert.Equal(t, "", Seq[string]{}.Lazy().Head())
+	assert.Equal(t, 0, Seq[int]{}.Lazy().Head())
+	assert.Equal(t, 0, nilSeq[int]().Lazy().Head())
+}
+
 func TestLazySeqLazySeqFromSeq(t *testing.T) {
 	//given
 	seq := Seq[int]{2, 4, 5}

@@ -120,6 +120,7 @@ func TestSeqHead(t *testing.T) {
 	assert.Equal(t, "abc", Seq[string]{"abc", "def", "ghi"}.Head())
 	assert.Equal(t, "", Seq[string]{}.Head())
 	assert.Equal(t, 0, Seq[int]{}.Head())
+	assert.Equal(t, 0, nilSeq[int]().Head())
 }
 
 func TestSeqHeadOption(t *testing.T) {

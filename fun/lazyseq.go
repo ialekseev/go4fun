@@ -143,6 +143,16 @@ func (lazySeq LazySeq[A]) ForAll(p func(A) bool) bool {
 	return !lazySeq.Exists(func(a A) bool { return !p(a) })
 }
 
+func (lazySeq LazySeq[A]) Foreach(f func(A)) {
+	for next := lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
+		f(next.Get())
+	}
+}
+
+func (lazySeq LazySeq[A]) Head() A {
+	return lazySeq.Iterator.Next().GetOrElse(*new(A))
+}
+
 func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {
 	return LazySeq[A]{&seqIterator[A]{seq, 0}, cap(seq), seq == nil}
 }

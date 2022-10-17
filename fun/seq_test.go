@@ -197,7 +197,10 @@ func TestSeqReduce(t *testing.T) {
 func TestSeqUnZipSeq(t *testing.T) {
 	assert.Equal(t, Tup2(Seq[int]{1, 2, 3}, Seq[string]{"a", "b", "c"}), UnZipSeq(Seq[Tuple2[int, string]]{Tup2(1, "a"), Tup2(2, "b"), Tup2(3, "c")}))
 	assert.Equal(t, Tup2(Seq[int]{}, Seq[string]{}), UnZipSeq(Seq[Tuple2[int, string]]{}))
-	assert.Equal(t, Tup2(Seq[int]{}, Seq[string]{}), UnZipSeq(nilSeq[Tuple2[int, string]]()))
+
+	r := UnZipSeq(nilSeq[Tuple2[int, string]]())
+	assert.Nil(t, r.a)
+	assert.Nil(t, r.b)
 }
 
 func TestSeqZipSeq(t *testing.T) {

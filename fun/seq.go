@@ -232,6 +232,9 @@ func (seq Seq[A]) Reduce(op func(A, A) A) A {
 
 // Converts this Sequence of Tuples into a Tuple of two Sequences.
 func UnZipSeq[A, B any](seq Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
+	if seq == nil {
+		return Tuple2[Seq[A], Seq[B]]{nil, nil}
+	}
 	seqA := EmptySeq[A](seq.Length())
 	seqB := EmptySeq[B](seq.Length())
 	for _, e := range seq {

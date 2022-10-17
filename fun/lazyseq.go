@@ -4,6 +4,7 @@ package fun
 
 type Iterator[A any] interface {
 	Next() Option[A]
+	Copy() Iterator[A]
 }
 
 //-------seqIterator----------
@@ -21,6 +22,10 @@ func (iterator *seqIterator[A]) Next() Option[A] {
 	} else {
 		return None[A]()
 	}
+}
+
+func (iterator *seqIterator[A]) Copy() Iterator[A] {
+	return &seqIterator[A]{iterator.seq, iterator.currentIndex}
 }
 
 //-------filterIterator----------
@@ -44,6 +49,10 @@ func (iterator *filterIterator[A]) Next() Option[A] {
 	}
 }
 
+func (iterator *filterIterator[A]) Copy() Iterator[A] {
+	return &filterIterator[A]{iterator.inputIterator.Copy(), iterator.filterF}
+}
+
 //-------mapIterator----------
 
 type mapIterator[A, B any] struct {
@@ -53,6 +62,10 @@ type mapIterator[A, B any] struct {
 
 func (iterator *mapIterator[A, B]) Next() Option[B] {
 	return MapOption(iterator.inputIterator.Next(), iterator.mapF)
+}
+
+func (iterator *mapIterator[A, B]) Copy() Iterator[B] {
+	return &mapIterator[A, B]{iterator.inputIterator.Copy(), iterator.mapF}
 }
 
 //-------flatMapIterator----------
@@ -85,6 +98,10 @@ func (iterator *flatMapIterator[A, B]) Next() Option[B] {
 	}
 }
 
+func (iterator *flatMapIterator[A, B]) Copy() Iterator[B] {
+	return &flatMapIterator[A, B]{iterator.inputIterator.Copy(), iterator.flatMapF, iterator.fmIterator}
+}
+
 //-------LazySeq--------------
 
 type LazySeq[A any] struct {
@@ -93,12 +110,16 @@ type LazySeq[A any] struct {
 	NilUnderlying bool
 }
 
+func (lazySeq LazySeq[A]) Copy() LazySeq[A] {
+	return LazySeq[A]{lazySeq.Iterator.Copy(), lazySeq.KnownCapacity, lazySeq.NilUnderlying}
+}
+
 func (lazySeq LazySeq[A]) Exists(p func(A) bool) bool {
 	return lazySeq.Find(p).IsDefined()
 }
 
 func (lazySeq LazySeq[A]) Filter(p func(A) bool) LazySeq[A] {
-	newIterator := filterIterator[A]{lazySeq.Iterator, p}
+	newIterator := filterIterator[A]{lazySeq.Iterator.Copy(), p}
 	return LazySeq[A]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
 }
 
@@ -123,7 +144,7 @@ func FlatMapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) LazySeq[B]) LazySeq[
 	fI := func(a A) Iterator[B] {
 		return f(a).Iterator
 	}
-	newIterator := flatMapIterator[A, B]{lazySeq.Iterator, fI, nil}
+	newIterator := flatMapIterator[A, B]{lazySeq.Iterator.Copy(), fI, nil}
 	return LazySeq[B]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
 }
 
@@ -178,7 +199,7 @@ func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
 }
 
 func MapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) B) LazySeq[B] {
-	newIterator := mapIterator[A, B]{lazySeq.Iterator, f}
+	newIterator := mapIterator[A, B]{lazySeq.Iterator.Copy(), f}
 	return LazySeq[B]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
 }
 
@@ -200,6 +221,10 @@ func MinInLazySeq[A Ordered](lazySeq LazySeq[A]) A {
 			return a2
 		}
 	})
+}
+
+func (lazySeq LazySeq[A]) NonEmpty() bool {
+	return !lazySeq.IsEmpty()
 }
 
 func (lazySeq LazySeq[A]) Reduce(op func(A, A) A) A {
@@ -225,4 +250,10 @@ func (lazySeq LazySeq[A]) Strict() Seq[A] {
 		result = result.Append(next.Get())
 	}
 	return result
+}
+
+func UnZipLazySeq[A, B any](lazySeq LazySeq[Tuple2[A, B]]) Tuple2[LazySeq[A], LazySeq[B]] {
+	return Tuple2[LazySeq[A], LazySeq[B]]{
+		MapLazySeq(lazySeq.Copy(), func(t Tuple2[A, B]) A { return t.a }),
+		MapLazySeq(lazySeq.Copy(), func(t Tuple2[A, B]) B { return t.b })}
 }

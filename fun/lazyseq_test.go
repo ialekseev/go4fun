@@ -7,6 +7,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestLazySeqCopy(t *testing.T) {
+	//given
+	lazySeq := Seq[int]{1, 2, 3, 4}.Lazy()
+	//when
+	copy := lazySeq.Copy()
+	//then
+	assert.Equal(t, lazySeq.KnownCapacity, copy.KnownCapacity)
+	assert.Equal(t, lazySeq.NilUnderlying, copy.NilUnderlying)
+
+	assert.Equal(t, Seq[int]{1, 2, 3, 4}, lazySeq.Strict())
+	assert.Equal(t, Seq[int]{1, 2, 3, 4}, copy.Strict()) //iterating lazySeq hasn't affected the copy
+	assert.Equal(t, Seq[int]{}, lazySeq.Strict())        //but affected the original iterator
+}
+
 func TestLazySeqExists(t *testing.T) {
 	assert.True(t, Seq[int]{2, 4, 5}.Lazy().Exists(func(a int) bool { return a > 4 }))
 	assert.False(t, Seq[int]{2, 4, 5}.Lazy().Exists(func(a int) bool { return a > 5 }))

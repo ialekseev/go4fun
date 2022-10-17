@@ -16,9 +16,8 @@ func TestLazySeqCopy(t *testing.T) {
 	assert.Equal(t, lazySeq.KnownCapacity, copy.KnownCapacity)
 	assert.Equal(t, lazySeq.NilUnderlying, copy.NilUnderlying)
 
-	assert.Equal(t, Seq[int]{1, 2, 3, 4}, lazySeq.Strict())
-	assert.Equal(t, Seq[int]{1, 2, 3, 4}, copy.Strict()) //iterating lazySeq hasn't affected the copy
-	assert.Equal(t, Seq[int]{}, lazySeq.Strict())        //but affected the original iterator
+	assert.Equal(t, Seq[int]{2, 4}, lazySeq.Filter(func(a int) bool { return a%2 == 0 }).Strict())
+	assert.Equal(t, Seq[int]{1, 2, 3, 4}, copy.Strict())
 }
 
 func TestLazySeqExists(t *testing.T) {

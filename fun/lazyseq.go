@@ -5,6 +5,7 @@ package fun
 type Iterator[A any] interface {
 	Next() Option[A]
 	Copy() Iterator[A]
+	Reset()
 }
 
 //-------seqIterator----------
@@ -26,6 +27,10 @@ func (iterator *seqIterator[A]) Next() Option[A] {
 
 func (iterator *seqIterator[A]) Copy() Iterator[A] {
 	return &seqIterator[A]{iterator.seq, iterator.currentIndex}
+}
+
+func (iterator *seqIterator[A]) Reset() {
+	iterator.currentIndex = 0
 }
 
 //-------filterIterator----------
@@ -53,6 +58,10 @@ func (iterator *filterIterator[A]) Copy() Iterator[A] {
 	return &filterIterator[A]{iterator.inputIterator.Copy(), iterator.filterF}
 }
 
+func (iterator *filterIterator[A]) Reset() {
+	iterator.inputIterator.Reset()
+}
+
 //-------mapIterator----------
 
 type mapIterator[A, B any] struct {
@@ -66,6 +75,10 @@ func (iterator *mapIterator[A, B]) Next() Option[B] {
 
 func (iterator *mapIterator[A, B]) Copy() Iterator[B] {
 	return &mapIterator[A, B]{iterator.inputIterator.Copy(), iterator.mapF}
+}
+
+func (iterator *mapIterator[A, B]) Reset() {
+	iterator.inputIterator.Reset()
 }
 
 //-------flatMapIterator----------
@@ -102,6 +115,10 @@ func (iterator *flatMapIterator[A, B]) Copy() Iterator[B] {
 	return &flatMapIterator[A, B]{iterator.inputIterator.Copy(), iterator.flatMapF, iterator.fmIterator}
 }
 
+func (iterator *flatMapIterator[A, B]) Reset() {
+	iterator.inputIterator.Reset()
+}
+
 //-------LazySeq--------------
 
 type LazySeq[A any] struct {
@@ -115,7 +132,7 @@ func (lazySeq LazySeq[A]) Copy() LazySeq[A] {
 }
 
 func (lazySeq LazySeq[A]) Exists(p func(A) bool) bool {
-	return lazySeq.Find(p).IsDefined()
+	return resetAndReturn(lazySeq, lazySeq.Find(p).IsDefined())
 }
 
 func (lazySeq LazySeq[A]) Filter(p func(A) bool) LazySeq[A] {
@@ -130,10 +147,10 @@ func (lazySeq LazySeq[A]) FilterNot(p func(A) bool) LazySeq[A] {
 func (lazySeq LazySeq[A]) Find(p func(A) bool) Option[A] {
 	for next := lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
 		if next.Exists(p) {
-			return next
+			return resetAndReturn(lazySeq, next)
 		}
 	}
-	return None[A]()
+	return resetAndReturn(lazySeq, None[A]())
 }
 
 func (lazySeq LazySeq[A]) FlatMap(f func(A) LazySeq[A]) LazySeq[A] {
@@ -149,7 +166,7 @@ func FlatMapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) LazySeq[B]) LazySeq[
 }
 
 func (lazySeq LazySeq[A]) Fold(z A, op func(A, A) A) A {
-	return FoldLazySeq(lazySeq, z, op)
+	return resetAndReturn(lazySeq, FoldLazySeq(lazySeq, z, op))
 }
 
 func FoldLazySeq[A, B any](lazySeq LazySeq[A], z B, op func(B, A) B) B {
@@ -157,7 +174,7 @@ func FoldLazySeq[A, B any](lazySeq LazySeq[A], z B, op func(B, A) B) B {
 	for next := lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
 		r = op(r, next.Get())
 	}
-	return r
+	return resetAndReturn(lazySeq, r)
 }
 
 func (lazySeq LazySeq[A]) ForAll(p func(A) bool) bool {
@@ -168,18 +185,19 @@ func (lazySeq LazySeq[A]) Foreach(f func(A)) {
 	for next := lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
 		f(next.Get())
 	}
+	lazySeq.Iterator.Reset()
 }
 
 func (lazySeq LazySeq[A]) Head() A {
-	return lazySeq.Iterator.Next().GetOrElse(*new(A))
+	return resetAndReturn(lazySeq, lazySeq.Iterator.Next().GetOrElse(*new(A)))
 }
 
 func (lazySeq LazySeq[A]) HeadOption() Option[A] {
-	return lazySeq.Iterator.Next()
+	return resetAndReturn(lazySeq, lazySeq.Iterator.Next())
 }
 
 func (lazySeq LazySeq[A]) IsEmpty() bool {
-	return lazySeq.Iterator.Next().IsEmpty()
+	return resetAndReturn(lazySeq, lazySeq.Iterator.Next().IsEmpty())
 }
 
 func LazySeqFromSeq[A any](seq Seq[A]) LazySeq[A] {
@@ -191,7 +209,7 @@ func (lazySeq LazySeq[A]) Length() int {
 	for next := lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
 		count = count + 1
 	}
-	return count
+	return resetAndReturn(lazySeq, count)
 }
 
 func (lazySeq LazySeq[A]) Map(f func(A) A) LazySeq[A] {
@@ -204,23 +222,23 @@ func MapLazySeq[A, B any](lazySeq LazySeq[A], f func(A) B) LazySeq[B] {
 }
 
 func MaxInLazySeq[A Ordered](lazySeq LazySeq[A]) A {
-	return lazySeq.Reduce(func(a1, a2 A) A {
+	return resetAndReturn(lazySeq, lazySeq.Reduce(func(a1, a2 A) A {
 		if a1 > a2 {
 			return a1
 		} else {
 			return a2
 		}
-	})
+	}))
 }
 
 func MinInLazySeq[A Ordered](lazySeq LazySeq[A]) A {
-	return lazySeq.Reduce(func(a1, a2 A) A {
+	return resetAndReturn(lazySeq, lazySeq.Reduce(func(a1, a2 A) A {
 		if a1 < a2 {
 			return a1
 		} else {
 			return a2
 		}
-	})
+	}))
 }
 
 func (lazySeq LazySeq[A]) NonEmpty() bool {
@@ -237,7 +255,12 @@ func (lazySeq LazySeq[A]) Reduce(op func(A, A) A) A {
 	for next = lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
 		r = op(r, next.Get())
 	}
-	return r
+	return resetAndReturn(lazySeq, r)
+}
+
+func resetAndReturn[A, B any](lazySeq LazySeq[A], result B) B {
+	lazySeq.Iterator.Reset()
+	return result
 }
 
 func (lazySeq LazySeq[A]) Strict() Seq[A] {
@@ -249,7 +272,7 @@ func (lazySeq LazySeq[A]) Strict() Seq[A] {
 	for next := lazySeq.Iterator.Next(); next.IsDefined(); next = lazySeq.Iterator.Next() {
 		result = result.Append(next.Get())
 	}
-	return result
+	return resetAndReturn(lazySeq, result)
 }
 
 func UnZipLazySeq[A, B any](lazySeq LazySeq[Tuple2[A, B]]) Tuple2[LazySeq[A], LazySeq[B]] {

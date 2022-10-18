@@ -7,7 +7,7 @@ func (seq Seq[A]) Append(elem A) Seq[A] {
 	return append(seq, elem)
 }
 
-// Returns true if this sequence contains an element that is equal (as determined by ==) to elem, false otherwise.
+// Returns true if this Sequence contains an element that is equal (as determined by ==) to elem, false otherwise.
 func ContainsInSeq[A comparable](seq Seq[A], elem A) bool {
 	return seq.Exists(func(a A) bool { return a == elem })
 }
@@ -34,7 +34,7 @@ func EmptySeq[A any](capacity int) Seq[A] {
 	return make(Seq[A], 0, capacity)
 }
 
-// Returns false if this Sequence is empty or nil, otherwise true if the given predicate p holds for some of the elements of this Sequence, otherwise false
+// Returns false if this Sequence is empty or nil, otherwise true if the given predicate p holds for some of the elements of this Sequence, otherwise false.
 func (seq Seq[A]) Exists(p func(A) bool) bool {
 	return seq.Find(p).IsDefined()
 }
@@ -145,7 +145,7 @@ func (seq Seq[A]) HeadOption() Option[A] {
 	}
 }
 
-// Returns true if the Sequence contain no elements, false otherwise.
+// Returns true if the Sequence contains no elements, false otherwise.
 func (seq Seq[A]) IsEmpty() bool {
 	return seq.Length() == 0
 }
@@ -230,7 +230,7 @@ func UnZipSeq[A, B any](seq Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
 	return Tup2(seqA, seqB)
 }
 
-// Returns a new Sequence formed from this Sequence and another Sequence by combining corresponding elements in Tuples. If one of the two collections is longer than the other, its remaining elements are ignored.
+// Returns a new Sequence formed from this Sequence and another Sequence by combining corresponding elements in Tuples. If one of the two Sequences is longer than the other, its remaining elements are ignored.
 func ZipSeq[A, B any](seq Seq[A], another Seq[B]) Seq[Tuple2[A, B]] {
 	if seq == nil || another == nil {
 		return nil

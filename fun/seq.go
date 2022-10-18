@@ -246,6 +246,10 @@ func UnZipSeq[A, B any](seq Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
 
 // Returns a new Sequence formed from this Sequence and another Sequence by combining corresponding elements in Tuples. If one of the two collections is longer than the other, its remaining elements are ignored.
 func ZipSeq[A, B any](seq Seq[A], another Seq[B]) Seq[Tuple2[A, B]] {
+	if seq == nil || another == nil {
+		return nil
+	}
+
 	minLen := seq.Length()
 	if another.Length() < minLen {
 		minLen = another.Length()

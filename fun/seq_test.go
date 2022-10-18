@@ -212,7 +212,7 @@ func TestSeqZipSeq(t *testing.T) {
 	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(Seq[int]{}, Seq[string]{"a", "b", "c"}))
 	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(Seq[int]{}, Seq[string]{}))
 
-	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(Seq[int]{1, 2, 3}, nilSeq[string]()))
-	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(nilSeq[int](), Seq[string]{"a", "b", "c"}))
-	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(nilSeq[int](), nilSeq[string]()))
+	assert.Nil(t, ZipSeq(Seq[int]{1, 2, 3}, nilSeq[string]()))
+	assert.Nil(t, ZipSeq(nilSeq[int](), Seq[string]{"a", "b", "c"}))
+	assert.Nil(t, ZipSeq(nilSeq[int](), nilSeq[string]()))
 }

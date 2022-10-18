@@ -119,6 +119,30 @@ func (iterator *flatMapIterator[A, B]) Reset() {
 	iterator.inputIterator.Reset()
 }
 
+//-------combined2Iterator----------
+
+type combined2Iterator[A, B, C any] struct {
+	inputIterator1 Iterator[A]
+	inputIterator2 Iterator[B]
+
+	combineF func(A, B) C
+}
+
+func (iterator *combined2Iterator[A, B, C]) Next() Option[C] {
+	return ApplyOption2(iterator.inputIterator1.Next(), iterator.inputIterator2.Next(), func(a A, b B) Option[C] {
+		return Some(iterator.combineF(a, b))
+	})
+}
+
+func (iterator *combined2Iterator[A, B, C]) Copy() Iterator[C] {
+	return &combined2Iterator[A, B, C]{iterator.inputIterator1.Copy(), iterator.inputIterator2.Copy(), iterator.combineF}
+}
+
+func (iterator *combined2Iterator[A, B, C]) Reset() {
+	iterator.inputIterator1.Reset()
+	iterator.inputIterator2.Reset()
+}
+
 //-------LazySeq--------------
 
 type LazySeq[A any] struct {
@@ -279,4 +303,9 @@ func UnZipLazySeq[A, B any](lazySeq LazySeq[Tuple2[A, B]]) Tuple2[LazySeq[A], La
 	return Tuple2[LazySeq[A], LazySeq[B]]{
 		MapLazySeq(lazySeq.Copy(), func(t Tuple2[A, B]) A { return t.a }),
 		MapLazySeq(lazySeq.Copy(), func(t Tuple2[A, B]) B { return t.b })}
+}
+
+func ZipLazySeq[A, B any](lazySeq LazySeq[A], another LazySeq[B]) LazySeq[Tuple2[A, B]] {
+	newIterator := combined2Iterator[A, B, Tuple2[A, B]]{lazySeq.Iterator.Copy(), another.Iterator.Copy(), Tup2[A, B]}
+	return LazySeq[Tuple2[A, B]]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying || another.NilUnderlying}
 }

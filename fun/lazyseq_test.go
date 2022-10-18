@@ -7,6 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestLazySeqContainsInLazySeq(t *testing.T) {
+	assert.True(t, ContainsInLazySeq(Seq[int]{1, 2, 5}.Lazy(), 2))
+	assert.False(t, ContainsInLazySeq(Seq[int]{1, 2, 5}.Lazy(), 6))
+	assert.False(t, ContainsInLazySeq(Seq[int]{}.Lazy(), 2))
+	assert.False(t, ContainsInLazySeq(nilSeq[int]().Lazy(), 2))
+}
+
 func TestLazySeqCopy(t *testing.T) {
 	//given
 	lazySeq := Seq[int]{1, 2, 3, 4}.Lazy()

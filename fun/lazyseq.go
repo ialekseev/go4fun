@@ -117,6 +117,7 @@ func (iterator *flatMapIterator[A, B]) Copy() Iterator[B] {
 
 func (iterator *flatMapIterator[A, B]) Reset() {
 	iterator.inputIterator.Reset()
+	iterator.fmIterator = nil
 }
 
 //-------combined2Iterator----------
@@ -149,6 +150,10 @@ type LazySeq[A any] struct {
 	Iterator      Iterator[A]
 	KnownCapacity int
 	NilUnderlying bool
+}
+
+func ContainsInLazySeq[A comparable](lazySeq LazySeq[A], elem A) bool {
+	return lazySeq.Exists(func(a A) bool { return a == elem })
 }
 
 func (lazySeq LazySeq[A]) Copy() LazySeq[A] {

@@ -9,12 +9,7 @@ func (seq Seq[A]) Append(elem A) Seq[A] {
 
 // Returns true if this sequence contains an element that is equal (as determined by ==) to elem, false otherwise.
 func ContainsInSeq[A comparable](seq Seq[A], elem A) bool {
-	for _, e := range seq {
-		if e == elem {
-			return true
-		}
-	}
-	return false
+	return seq.Exists(func(a A) bool { return a == elem })
 }
 
 // Returns a new Sequence from this Sequence without any duplicate elements.
@@ -60,16 +55,7 @@ func (seq Seq[A]) Filter(p func(A) bool) Seq[A] {
 
 // Returns a new Sequence consisting of all elements of this Sequence that do not satisfy the given predicate p. The order of the elements is preserved.
 func (seq Seq[A]) FilterNot(p func(A) bool) Seq[A] {
-	if seq == nil {
-		return nil
-	}
-	r := EmptySeq[A](seq.Length())
-	for _, e := range seq {
-		if !p(e) {
-			r = r.Append(e)
-		}
-	}
-	return r
+	return seq.Filter(func(a A) bool { return !p(a) })
 }
 
 // Finds the first element of the Sequence satisfying a predicate, if any. Returns an option value containing the first element in the Sequence that satisfies p, or None if none exists.

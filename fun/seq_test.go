@@ -120,6 +120,7 @@ func TestSeqHead(t *testing.T) {
 	assert.Equal(t, "abc", Seq[string]{"abc", "def", "ghi"}.Head())
 	assert.Equal(t, "", Seq[string]{}.Head())
 	assert.Equal(t, 0, Seq[int]{}.Head())
+	assert.Equal(t, 0, nilSeq[int]().Head())
 }
 
 func TestSeqHeadOption(t *testing.T) {
@@ -133,6 +134,18 @@ func TestSeqIsEmpty(t *testing.T) {
 	assert.True(t, nilSeq[int]().IsEmpty())
 	assert.False(t, Seq[int]{1, 2, 3}.IsEmpty())
 	assert.False(t, Seq[int]{1}.IsEmpty())
+}
+
+func TestSeqLazy(t *testing.T) {
+	//given
+	seq := Seq[int]{2, 4, 5}
+
+	//when
+	lazy := seq.Lazy()
+
+	//then
+	assert.NotNil(t, lazy.Iterator)
+	assert.Equal(t, 3, lazy.KnownCapacity)
 }
 
 func TestSeqLength(t *testing.T) {
@@ -153,18 +166,18 @@ func TestSeqMapSeq(t *testing.T) {
 	assert.Nil(t, MapSeq(nilSeq[int](), func(a int) string { return fmt.Sprint(a) }))
 }
 
-func TestSeqMax(t *testing.T) {
-	assert.Equal(t, 7, Max(Seq[int]{-1, 4, 7, 3, -4, 0, 2}))
-	assert.Equal(t, -2, Max(Seq[int]{-2}))
-	assert.Equal(t, 0, Max(Seq[int]{}))
-	assert.Equal(t, 0, Max(nilSeq[int]()))
+func TestSeqMaxInSeq(t *testing.T) {
+	assert.Equal(t, 7, MaxInSeq(Seq[int]{-1, 4, 7, 3, -4, 0, 2}))
+	assert.Equal(t, -2, MaxInSeq(Seq[int]{-2}))
+	assert.Equal(t, 0, MaxInSeq(Seq[int]{}))
+	assert.Equal(t, 0, MaxInSeq(nilSeq[int]()))
 }
 
-func TestSeqMin(t *testing.T) {
-	assert.Equal(t, -7, Min(Seq[int]{-1, 4, -7, 3, -4, 0, 2}))
-	assert.Equal(t, 4, Min(Seq[int]{4}))
-	assert.Equal(t, 0, Min(Seq[int]{}))
-	assert.Equal(t, 0, Min(nilSeq[int]()))
+func TestSeqMinInSeq(t *testing.T) {
+	assert.Equal(t, -7, MinInSeq(Seq[int]{-1, 4, -7, 3, -4, 0, 2}))
+	assert.Equal(t, 4, MinInSeq(Seq[int]{4}))
+	assert.Equal(t, 0, MinInSeq(Seq[int]{}))
+	assert.Equal(t, 0, MinInSeq(nilSeq[int]()))
 }
 
 func TestSeqNonEmpty(t *testing.T) {
@@ -184,7 +197,10 @@ func TestSeqReduce(t *testing.T) {
 func TestSeqUnZipSeq(t *testing.T) {
 	assert.Equal(t, Tup2(Seq[int]{1, 2, 3}, Seq[string]{"a", "b", "c"}), UnZipSeq(Seq[Tuple2[int, string]]{Tup2(1, "a"), Tup2(2, "b"), Tup2(3, "c")}))
 	assert.Equal(t, Tup2(Seq[int]{}, Seq[string]{}), UnZipSeq(Seq[Tuple2[int, string]]{}))
-	assert.Equal(t, Tup2(Seq[int]{}, Seq[string]{}), UnZipSeq(nilSeq[Tuple2[int, string]]()))
+
+	r := UnZipSeq(nilSeq[Tuple2[int, string]]())
+	assert.Nil(t, r.a)
+	assert.Nil(t, r.b)
 }
 
 func TestSeqZipSeq(t *testing.T) {
@@ -196,7 +212,7 @@ func TestSeqZipSeq(t *testing.T) {
 	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(Seq[int]{}, Seq[string]{"a", "b", "c"}))
 	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(Seq[int]{}, Seq[string]{}))
 
-	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(Seq[int]{1, 2, 3}, nilSeq[string]()))
-	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(nilSeq[int](), Seq[string]{"a", "b", "c"}))
-	assert.Equal(t, Seq[Tuple2[int, string]]{}, ZipSeq(nilSeq[int](), nilSeq[string]()))
+	assert.Nil(t, ZipSeq(Seq[int]{1, 2, 3}, nilSeq[string]()))
+	assert.Nil(t, ZipSeq(nilSeq[int](), Seq[string]{"a", "b", "c"}))
+	assert.Nil(t, ZipSeq(nilSeq[int](), nilSeq[string]()))
 }

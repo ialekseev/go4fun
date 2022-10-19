@@ -7,14 +7,9 @@ func (seq Seq[A]) Append(elem A) Seq[A] {
 	return append(seq, elem)
 }
 
-// Returns true if this sequence contains an element that is equal (as determined by ==) to elem, false otherwise.
+// Returns true if this Sequence contains an element that is equal (as determined by ==) to elem, false otherwise.
 func ContainsInSeq[A comparable](seq Seq[A], elem A) bool {
-	for _, e := range seq {
-		if e == elem {
-			return true
-		}
-	}
-	return false
+	return seq.Exists(func(a A) bool { return a == elem })
 }
 
 // Returns a new Sequence from this Sequence without any duplicate elements.
@@ -39,14 +34,9 @@ func EmptySeq[A any](capacity int) Seq[A] {
 	return make(Seq[A], 0, capacity)
 }
 
-// Returns false if this Sequence is empty or nil, otherwise true if the given predicate p holds for some of the elements of this Sequence, otherwise false
+// Returns false if this Sequence is empty or nil, otherwise true if the given predicate p holds for some of the elements of this Sequence, otherwise false.
 func (seq Seq[A]) Exists(p func(A) bool) bool {
-	for _, e := range seq {
-		if p(e) {
-			return true
-		}
-	}
-	return false
+	return seq.Find(p).IsDefined()
 }
 
 // Returns a new Sequence consisting of all elements of this Sequence that satisfy the given predicate p. The order of the elements is preserved.
@@ -65,16 +55,7 @@ func (seq Seq[A]) Filter(p func(A) bool) Seq[A] {
 
 // Returns a new Sequence consisting of all elements of this Sequence that do not satisfy the given predicate p. The order of the elements is preserved.
 func (seq Seq[A]) FilterNot(p func(A) bool) Seq[A] {
-	if seq == nil {
-		return nil
-	}
-	r := EmptySeq[A](seq.Length())
-	for _, e := range seq {
-		if !p(e) {
-			r = r.Append(e)
-		}
-	}
-	return r
+	return seq.Filter(func(a A) bool { return !p(a) })
 }
 
 // Finds the first element of the Sequence satisfying a predicate, if any. Returns an option value containing the first element in the Sequence that satisfies p, or None if none exists.
@@ -137,12 +118,7 @@ func FoldSeq[A, B any](seq Seq[A], z B, op func(B, A) B) B {
 
 // Returns true if this Sequence is empty or nil or the given predicate p holds for all elements of this Sequence, otherwise false.
 func (seq Seq[A]) ForAll(p func(A) bool) bool {
-	for _, e := range seq {
-		if !p(e) {
-			return false
-		}
-	}
-	return true
+	return !seq.Exists(func(a A) bool { return !p(a) })
 }
 
 // Applies a given procedure f to all elements of this Sequence.
@@ -169,9 +145,14 @@ func (seq Seq[A]) HeadOption() Option[A] {
 	}
 }
 
-// Returns true if the Sequence contain no elements, false otherwise.
+// Returns true if the Sequence contains no elements, false otherwise.
 func (seq Seq[A]) IsEmpty() bool {
 	return seq.Length() == 0
+}
+
+// Converts this Sequence to Lazy Sequence
+func (seq Seq[A]) Lazy() LazySeq[A] {
+	return LazySeqFromSeq(seq)
 }
 
 // Returns the length of the Sequence. An alias for built-in len function.
@@ -197,7 +178,7 @@ func MapSeq[A, B any](seq Seq[A], f func(A) B) Seq[B] {
 }
 
 // Returns the largest element of this Sequence. Or a default value of type A if the Sequence is empty or nil.
-func Max[A Ordered](seq Seq[A]) A {
+func MaxInSeq[A Ordered](seq Seq[A]) A {
 	return seq.Reduce(func(a1, a2 A) A {
 		if a1 > a2 {
 			return a1
@@ -208,7 +189,7 @@ func Max[A Ordered](seq Seq[A]) A {
 }
 
 // Returns the smallest element of this Sequence. Or a default value of type A if the Sequence is empty or nil.
-func Min[A Ordered](seq Seq[A]) A {
+func MinInSeq[A Ordered](seq Seq[A]) A {
 	return seq.Reduce(func(a1, a2 A) A {
 		if a1 < a2 {
 			return a1
@@ -237,6 +218,9 @@ func (seq Seq[A]) Reduce(op func(A, A) A) A {
 
 // Converts this Sequence of Tuples into a Tuple of two Sequences.
 func UnZipSeq[A, B any](seq Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
+	if seq == nil {
+		return Tuple2[Seq[A], Seq[B]]{nil, nil}
+	}
 	seqA := EmptySeq[A](seq.Length())
 	seqB := EmptySeq[B](seq.Length())
 	for _, e := range seq {
@@ -246,8 +230,12 @@ func UnZipSeq[A, B any](seq Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
 	return Tup2(seqA, seqB)
 }
 
-// Returns a new Sequence formed from this Sequence and another Sequence by combining corresponding elements in Tuples. If one of the two collections is longer than the other, its remaining elements are ignored.
+// Returns a new Sequence formed from this Sequence and another Sequence by combining corresponding elements in Tuples. If one of the two Sequences is longer than the other, its remaining elements are ignored.
 func ZipSeq[A, B any](seq Seq[A], another Seq[B]) Seq[Tuple2[A, B]] {
+	if seq == nil || another == nil {
+		return nil
+	}
+
 	minLen := seq.Length()
 	if another.Length() < minLen {
 		minLen = another.Length()

@@ -16,29 +16,29 @@ Go4Fun - GO for FUNctional programming
 ## Option
 #### Map
 ```go
-r = Some("route").Map(func(a string) string { return a + "60" })
+r := Some("route").Map(func(a string) string { return a + "60" })
 fmt.Println(r)
 // Output: Some(route60)
 ```
 #### FlatMap
 ```go
-r = Some("route").FlatMap(func(a string) Option[string] { return Some(a + "60") })
+r := Some("route").FlatMap(func(a string) Option[string] { return Some(a + "60") })
 fmt.Println(r)
 // Output: Some(route60)
 
-r = Some("route").FlatMap(func(a string) Option[string] { return None[string]() })
+r := Some("route").FlatMap(func(a string) Option[string] { return None[string]() })
 fmt.Println(r)
 // Output: None
 ```
 #### Apply (Applicative)
 ```go
-r = ApplyOption3(Some(true), Some(10), Some("abc"), func(a bool, b int, c string) Option[string] {
+r := ApplyOption3(Some(true), Some(10), Some("abc"), func(a bool, b int, c string) Option[string] {
 	return Some(fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c))
 })
 fmt.Println(r)
 // Output: Some(true 10 abc)
 
-r = ApplyOption3(None[bool](), Some(10), Some("abc"), func(a bool, b int, c string) Option[string] {
+r := ApplyOption3(None[bool](), Some(10), Some("abc"), func(a bool, b int, c string) Option[string] {
 	return Some(fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c))
 })
 fmt.Println(r)
@@ -46,31 +46,31 @@ fmt.Println(r)
 ```
 #### Filter
 ```go
-r = Some(5).Filter(func(a int) bool { return a < 10 })
+r := Some(5).Filter(func(a int) bool { return a < 10 })
 fmt.Println(r)
 // Output: Some(5)
 
-r = Some(10).Filter(func(a int) bool { return a > 10 })
+r := Some(10).Filter(func(a int) bool { return a > 10 })
 fmt.Println(r)
 // Output: None
 ```
 #### Fold
 ```go
-r = Some(5).Fold(1, func(a int) int { return a * 2 })
+r := Some(5).Fold(1, func(a int) int { return a * 2 })
 fmt.Println(r)
 // Output: 10
 
-r = None[int]().Fold(1, func(a int) int { return a * 2 })
+r := None[int]().Fold(1, func(a int) int { return a * 2 })
 fmt.Println(r)
 // Output: 1
 ```
 #### Zip & UnZip
 ```go
-r = ZipOption(Some("route"), Some(60))
+r := ZipOption(Some("route"), Some(60))
 fmt.Println(r)
 // Output: Some((route,60))
 
-r = UnZipOption(Some(Tup2("route", 60)))
+r := UnZipOption(Some(Tup2("route", 60)))
 fmt.Println(r)
 // Output: (Some(route),Some(60))
 ```
@@ -78,41 +78,41 @@ fmt.Println(r)
 ## Sequence
 #### Map
 ```go
-r = Seq[string]{"a", "b", "c"}.Map(func(a string) string { return a + "!" })
+r := Seq[string]{"a", "b", "c"}.Map(func(a string) string { return a + "!" })
 fmt.Println(r)
 // Output: [a! b! c!]
 ```
 #### FlatMap
 ```go
-r = Seq[int]{1, 2}.FlatMap(func(a int) Seq[int] { return Seq[int]{a, a} })
+r := Seq[int]{1, 2}.FlatMap(func(a int) Seq[int] { return Seq[int]{a, a} })
 fmt.Println(r)
 // Output: [1 1 2 2]
 ```
 #### Filter
 ```go
-r = Seq[int]{2, 3, 4, 5, 6}.Filter(func(a int) bool { return a%2 == 0 })
+r := Seq[int]{2, 3, 4, 5, 6}.Filter(func(a int) bool { return a%2 == 0 })
 fmt.Println(r)
 // Output: [2 4 6]
 ```
 #### Fold
 ```go
-r = Seq[string]{"r", "o", "b"}.Fold("hi ", func(a1, a2 string) string { return a1 + a2 })
+r := Seq[string]{"r", "o", "b"}.Fold("hi ", func(a1, a2 string) string { return a1 + a2 })
 fmt.Println(r)
 // Output: hi rob
 ```
 #### Reduce
 ```go
-r = Seq[int]{1, 2, 3, 4}.Reduce(func(a1, a2 int) int { return a1 + a2 })
+r := Seq[int]{1, 2, 3, 4}.Reduce(func(a1, a2 int) int { return a1 + a2 })
 fmt.Println(r)
 // Output: 10
 ```
 #### Zip & UnZip
 ```go
-r = ZipSeq(Seq[int]{1, 2, 3}, Seq[string]{"a", "b", "c"})
+r := ZipSeq(Seq[int]{1, 2, 3}, Seq[string]{"a", "b", "c"})
 fmt.Println(r)
 // Output: [(1,a) (2,b) (3,c)]
 
-r = UnZipSeq(Seq[Tuple2[int, string]]{Tup2(1, "a"), Tup2(2, "b"), Tup2(3, "c")})
+r := UnZipSeq(Seq[Tuple2[int, string]]{Tup2(1, "a"), Tup2(2, "b"), Tup2(3, "c")})
 fmt.Println(r)
 // Output: ([1 2 3],[a b c])
 ```
@@ -120,12 +120,12 @@ fmt.Println(r)
 ## Future
 #### Map
 ```go
-future = FutureValue(func() string {
+future := FutureValue(func() string {
 	time.Sleep(time.Millisecond * 20)
 	return "abc"
 })
 
-r = future.Map(func(a string) string { return a + "def" })
+r := future.Map(func(a string) string { return a + "def" })
 
 time.Sleep(time.Millisecond * 30)
 
@@ -134,12 +134,12 @@ fmt.Println(r.Result())
 ```
 #### FlatMap
 ```go
-future = FutureValue(func() string {
+future := FutureValue(func() string {
 	time.Sleep(time.Millisecond * 10)
 	return "abc"
 })
 
-r = future.FlatMap(func(a string) Future[string] {
+r := future.FlatMap(func(a string) Future[string] {
 	return FutureValue(func() string {
 		time.Sleep(time.Millisecond * 10)
 		return a + "def"
@@ -153,17 +153,17 @@ fmt.Println(r.Result())
 ```
 #### Apply (Applicative)
 ```go
-future1 = FutureValue(func() int {
+future1 := FutureValue(func() int {
 	time.Sleep(time.Millisecond * 10)
 	return 123
 })
 
-future2 = FutureValue(func() bool {
+future2 := FutureValue(func() bool {
 	time.Sleep(time.Millisecond * 10)
 	return true
 })
 
-r = ApplyFuture2(future1, future2, func(a int, b bool) Future[string] {
+r := ApplyFuture2(future1, future2, func(a int, b bool) Future[string] {
 	return FutureValue(func() string {
 		time.Sleep(time.Millisecond * 10)
 		return fmt.Sprint(a) + " " + fmt.Sprint(b)
@@ -177,7 +177,7 @@ fmt.Println(r.Result())
 ```
 #### OnComplete
 ```go
-future = FutureValue(func() string {
+future := FutureValue(func() string {
 	time.Sleep(time.Millisecond * 20)
 	return "abc"
 })
@@ -192,27 +192,27 @@ time.Sleep(time.Millisecond * 30)
 ## Either
 #### Map
 ```go
-r = Right[int]("60").Map(func(r string) string { return "route" + r })
+r := Right[int]("60").Map(func(r string) string { return "route" + r })
 fmt.Println(r)
 // Output: Right(route60)
 ```
 #### FlatMap
 ```go
-r = Right[int]("60").FlatMap(func(r string) Either[int, string] { return Right[int]("route" + r) })
+r := Right[int]("60").FlatMap(func(r string) Either[int, string] { return Right[int]("route" + r) })
 fmt.Println(r)
 // Output: Right(route60)
 
-r = Right[int]("60").FlatMap(func(r string) Either[int, string] { return Left[int, string](-1) })
+r := Right[int]("60").FlatMap(func(r string) Either[int, string] { return Left[int, string](-1) })
 fmt.Println(r)
 // Output: Left(-1)
 ```
 #### ToOption
 ```go
-r = Right[int]("john lennon").ToOption()
+r := Right[int]("john lennon").ToOption()
 fmt.Println(r)
 // Output: Some(john lennon)
 
-r = Left[int, string](-1).ToOption()
+r := Left[int, string](-1).ToOption()
 fmt.Println(r)
 // Output: None
 ```
@@ -245,19 +245,19 @@ summationT(100000000, 0).Run()
 ## Currying
 #### Curry
 ```go
-f = func(a int, b bool, c float64) string {
+f := func(a int, b bool, c float64) string {
 	return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
 }
 
 curriedF := Curry3(f)
-r = curriedF(1)(true)(5.5)
+r := curriedF(1)(true)(5.5)
 
 fmt.Println(r)
 // Output: 1 true 5.5
 ```
 #### UnCurry
 ```go
-f = func(a int) func(bool) func(float64) string {
+f := func(a int) func(bool) func(float64) string {
 	return func(b bool) func(float64) string {
 		return func(c float64) string {
 			return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
@@ -266,7 +266,7 @@ f = func(a int) func(bool) func(float64) string {
 }
 
 unCurriedF := UnCurry3(f)
-r = unCurriedF(1, true, 5.5)
+r := unCurriedF(1, true, 5.5)
 
 fmt.Println(r)
 // Output: 1 true 5.5
@@ -274,11 +274,11 @@ fmt.Println(r)
 
 ## Function Composition
 ```go
-f = func(a int) string { return fmt.Sprint(a) }
-g = func(b string) bool { return b != "" }
-h = func(c bool) string { return fmt.Sprint(c) }
+f := func(a int) string { return fmt.Sprint(a) }
+g := func(b string) bool { return b != "" }
+h := func(c bool) string { return fmt.Sprint(c) }
 
-j = Compose3(f, g, h)
+j := Compose3(f, g, h)
 
 fmt.Println(j(1) == h(g(f(1))))
 // Output: true

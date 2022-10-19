@@ -6,7 +6,7 @@ import (
 )
 
 func ExampleLazySeq_eg1() {
-	// Strict (Regular) Sequence eagerly evaluates their elements.
+	// Strict (Regular) Sequence eagerly evaluates its elements.
 	// Below code calculates a result in multiple iterations:
 	r1 := Seq[int]{-2, -1, 0, 1, 2, 3, 4, 5, 6}.
 		Filter(func(a int) bool { return a > 0 }).

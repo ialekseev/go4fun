@@ -2,11 +2,12 @@ Go4Fun - GO for FUNctional programming
 ======================================
 ![build-test](https://github.com/ialekseev/go4fun/actions/workflows/main.yml/badge.svg)
 
-`Option`, `Sequence`, `Future`, `Either`, `Tuple` types with familiar combinators found in other functional-first languages: `Map`, `FlatMap`, `Apply (Applicative)`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... alongside many other handy functions. And also: `Trampoline`, `Currying`, `Function Composition`...
+`Option`, `Sequence`, `Lazy Sequence`, `Future`, `Either`, `Tuple` types with familiar combinators found in other functional-first languages: `Map`, `FlatMap`, `Apply (Applicative)`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... alongside many other handy functions. And also: `Trampoline`, `Currying`, `Function Composition`...
 
 # Examples
 - [Option](https://github.com/ialekseev/go4fun#option)
 - [Sequence](https://github.com/ialekseev/go4fun#sequence)
+- [Lazy Sequence](https://github.com/ialekseev/go4fun#lazy-sequence)
 - [Future](https://github.com/ialekseev/go4fun#future)
 - [Either](https://github.com/ialekseev/go4fun#either)
 - [Trampoline](https://github.com/ialekseev/go4fun#trampoline)
@@ -115,6 +116,35 @@ fmt.Println(r)
 r := UnZipSeq(Seq[Tuple2[int, string]]{Tup2(1, "a"), Tup2(2, "b"), Tup2(3, "c")})
 fmt.Println(r)
 // Output: ([1 2 3],[a b c])
+```
+
+## Lazy Sequence
+```go
+// Strict (Regular) Sequence eagerly evaluates its elements.
+// Below code calculates a result in multiple iterations:
+r1 := Seq[int]{-2, -1, 0, 1, 2, 3, 4, 5, 6}.
+	Filter(func(a int) bool { return a > 0 }).
+	Filter(func(a int) bool { return a%2 == 0 }).
+	Map(func(a int) int { return a / 2 }).
+	Reduce(func(a1, a2 int) int { return a1 + a2 })
+
+fmt.Println(r1)
+
+// Lazy Sequence evaluates elements only when they are needed.
+// In this case, it's when the last materializing call happens (Reduce).
+// Other calls (Filter, Map) are "lazy" and don't result in any computation.
+// Below code calculates a result in 1 iteration:
+r2 := Seq[int]{-2, -1, 0, 1, 2, 3, 4, 5, 6}.Lazy().
+	Filter(func(a int) bool { return a > 0 }).
+	Filter(func(a int) bool { return a%2 == 0 }).
+	Map(func(a int) int { return a / 2 }).
+	Reduce(func(a1, a2 int) int { return a1 + a2 })
+
+fmt.Println(r2)
+
+// Output:
+// 6
+// 6
 ```
 
 ## Future

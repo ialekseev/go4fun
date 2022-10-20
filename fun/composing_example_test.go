@@ -4,15 +4,14 @@ import (
 	"fmt"
 )
 
-// Example for: Compose3
+// Example for: Compose2
 
-func ExampleCompose3_eg1() {
+func ExampleCompose2_eg1() {
 	f := func(a int) string { return fmt.Sprint(a) }
 	g := func(b string) bool { return b != "" }
-	h := func(c bool) string { return fmt.Sprint(c) }
 
-	j := Compose3(f, g, h)
+	h := Compose2(f, g)
 
-	fmt.Println(j(1) == h(g(f(1))))
+	fmt.Println(h(1) == g(f(1)))
 	// Output: true
 }

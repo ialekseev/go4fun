@@ -15,6 +15,7 @@ Go4Fun - GO for FUNctional programming
 - [Function Composition](https://github.com/ialekseev/go4fun#function-composition)
 
 ## Option
+`Option` type represents optional values. If a value exists - it is wrapped as `Some(value)`. If not - it is `None`. It is a FP way of representing a (possibly) non-existing value. Functions like `Map`, `FlatMap`, `Apply`, `Filter` etc. allow complex chaining of `Option` values without having to check for the existence of a value.
 #### Map
 ```go
 r := Some("route").Map(func(a string) string { return a + "60" })
@@ -77,6 +78,7 @@ fmt.Println(r)
 ```
 
 ## Sequence
+`Sequence` type is based on Go slices with common FP functions added on top of that: `Map`, `FlatMap`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip` etc.
 #### Map
 ```go
 r := Seq[string]{"a", "b", "c"}.Map(func(a string) string { return a + "!" })
@@ -119,6 +121,7 @@ fmt.Println(r)
 ```
 
 ## Lazy Sequence
+`Lazy Sequence` evaluates elements only when they are needed (unlike the regular `Sequence` that does it eagerly). It has the same functions as `Sequence` but many of them are "Lazy" and would not trigger any processing until that is needed.
 ```go
 // Strict (Regular) Sequence eagerly evaluates its elements.
 // Below code calculates a result in multiple iterations:
@@ -146,8 +149,26 @@ fmt.Println(r2)
 // 6
 // 6
 ```
+```go
+lazySeq := Seq[string]{"b", "c", "d", "e", "f"}.Lazy().
+	Map(func(a string) string { return strings.ToUpper(a) })
+
+// The same Lazy Sequence is re-used below for different computations:
+
+r1 := lazySeq.FlatMap(func(a string) LazySeq[string] { return Seq[string]{a, a}.Lazy() }).Strict()
+fmt.Println(r1)
+
+r2 := lazySeq.Map(func(a string) string { return strings.ToUpper(a) }).
+	Fold("A", func(a string, b string) string { return a + b })
+
+fmt.Println(r2)
+// Output:
+// [B B C C D D E E F F]
+// ABCDEF
+```
 
 ## Future
+`Future` represents a value that may not be yet available, but should become available at some point when the underlying asynchronous computation is completed. It also has functions (`Map`, `FlatMap`, `Apply`...) that allow chaining of `Future` values without having to check for the availability of a value.
 #### Map
 ```go
 future := FutureValue(func() string {
@@ -220,6 +241,7 @@ time.Sleep(time.Millisecond * 30)
 ```
 
 ## Either
+`Either` represents a value of one of two possible cases: it is either `Left` or `Right`. A common use of `Either` is as an alternative to `Option` for dealing with (possibly) missing values. In this case, `Left` is used instead of `None` and can additionally contain useful information, and `Right` is used instead of `Some`. Thus, usually `Left` is used for a failure and `Right` for a success.
 #### Map
 ```go
 r := Right[int]("60").Map(func(r string) string { return "route" + r })
@@ -248,6 +270,7 @@ fmt.Println(r)
 ```
 
 ## Trampoline
+Trampoline allows to preserve a recursive structure of the code while avoiding a possible Stack Overflow problem. A recursive function becomes a description of the recursive computation which we need to run later to actually produce a real result. `MoreTrampolining` call is used to wrap a deferred call and `DoneTrampolining` to wrap a final result.
 ```go
 // Recursion without Trampoline:
 func summation(n, current uint64) uint64 {
@@ -273,6 +296,7 @@ summationT(100000000, 0).Run()
 ```
 
 ## Currying
+Currying is a technique of converting a function that takes multiple arguments into a sequence of functions that each takes a single argument.
 #### Curry
 ```go
 f := func(a int, b bool, c float64) string {
@@ -303,14 +327,14 @@ fmt.Println(r)
 ```
 
 ## Function Composition
+Function composition is an operation `Compose2` that takes two functions `f` and `g`, and produces a function `h` such that `h(x) = g(f(x))`. The concept could be extended beyond `Compose2` to chain more than 2 functions: `Compose3` etc.
 ```go
 f := func(a int) string { return fmt.Sprint(a) }
 g := func(b string) bool { return b != "" }
-h := func(c bool) string { return fmt.Sprint(c) }
 
-j := Compose3(f, g, h)
+h := Compose2(f, g)
 
-fmt.Println(j(1) == h(g(f(1))))
+fmt.Println(h(1) == g(f(1)))
 // Output: true
 ```
 

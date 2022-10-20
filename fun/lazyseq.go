@@ -146,7 +146,8 @@ func (iterator *combined2Iterator[A, B, C]) Reset() {
 
 //-------LazySeq--------------
 
-// Lazy Sequence is a Sequence
+// Lazy Sequence evaluates elements only when they are needed (unlike the regular Sequence that does it eagerly).
+// It has the same functions as Sequence but many of them are "Lazy" and would not cause any processing until that is needed.
 type LazySeq[A any] struct {
 	Iterator      Iterator[A]
 	KnownCapacity int

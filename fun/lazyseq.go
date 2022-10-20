@@ -26,7 +26,7 @@ func (iterator *seqIterator[A]) Next() Option[A] {
 }
 
 func (iterator *seqIterator[A]) Copy() Iterator[A] {
-	return &seqIterator[A]{iterator.seq, iterator.currentIndex}
+	return &seqIterator[A]{iterator.seq, 0}
 }
 
 func (iterator *seqIterator[A]) Reset() {
@@ -60,6 +60,32 @@ func (iterator *filterIterator[A]) Copy() Iterator[A] {
 
 func (iterator *filterIterator[A]) Reset() {
 	iterator.inputIterator.Reset()
+}
+
+//-------filterIndexIterator----------
+
+type filterIndexIterator[A any] struct {
+	inputIterator Iterator[A]
+	filterIndexF  func(int) bool
+	currentIndex  int
+}
+
+func (iterator *filterIndexIterator[A]) Next() Option[A] {
+	if iterator.filterIndexF(iterator.currentIndex) {
+		iterator.currentIndex = iterator.currentIndex + 1
+		return iterator.inputIterator.Next()
+	} else {
+		return None[A]()
+	}
+}
+
+func (iterator *filterIndexIterator[A]) Copy() Iterator[A] {
+	return &filterIndexIterator[A]{iterator.inputIterator.Copy(), iterator.filterIndexF, 0}
+}
+
+func (iterator *filterIndexIterator[A]) Reset() {
+	iterator.inputIterator.Reset()
+	iterator.currentIndex = 0
 }
 
 //-------mapIterator----------
@@ -112,7 +138,7 @@ func (iterator *flatMapIterator[A, B]) Next() Option[B] {
 }
 
 func (iterator *flatMapIterator[A, B]) Copy() Iterator[B] {
-	return &flatMapIterator[A, B]{iterator.inputIterator.Copy(), iterator.flatMapF, iterator.fmIterator}
+	return &flatMapIterator[A, B]{iterator.inputIterator.Copy(), iterator.flatMapF, nil}
 }
 
 func (iterator *flatMapIterator[A, B]) Reset() {
@@ -351,6 +377,13 @@ func (lazySeq LazySeq[A]) Strict() Seq[A] {
 		result = result.Append(next.Get())
 	}
 	return resetAndReturn(lazySeq, result)
+}
+
+// Returns a new Lazy Sequence containing first n elements of this Lazy Sequence. Or the whole Lazy Sequence, if it has less than n elements. If n is negative, returns an empty Lazy Sequence.
+// [Lazy action: doesn't iterate over the underlying Sequence, just returns a new Lazy Sequence]
+func (lazySeq LazySeq[A]) Take(n int) LazySeq[A] {
+	newIterator := filterIndexIterator[A]{lazySeq.Iterator.Copy(), func(i int) bool { return i < n }, 0}
+	return LazySeq[A]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
 }
 
 // Converts this Lazy Sequence of Tuples into a Tuple of two Lazy Sequences.

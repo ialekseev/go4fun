@@ -194,6 +194,15 @@ func TestSeqReduce(t *testing.T) {
 	assert.Equal(t, 0, nilSeq[int]().Reduce(func(a1, a2 int) int { return a1 + a2 }))
 }
 
+func TestSeqTake(t *testing.T) {
+	assert.Equal(t, Seq[int]{1, 2}, Seq[int]{1, 2, 3, 4}.Take(2))
+	assert.Equal(t, Seq[int]{1, 2, 3, 4}, Seq[int]{1, 2, 3, 4}.Take(10))
+	assert.Equal(t, Seq[int]{}, Seq[int]{1, 2, 3, 4}.Take(0))
+	assert.Equal(t, Seq[int]{}, Seq[int]{1, 2, 3, 4}.Take(-5))
+	assert.Equal(t, Seq[int]{}, Seq[int]{}.Take(2))
+	assert.Nil(t, nilSeq[int]().Take(2))
+}
+
 func TestSeqUnZipSeq(t *testing.T) {
 	assert.Equal(t, Tup2(Seq[int]{1, 2, 3}, Seq[string]{"a", "b", "c"}), UnZipSeq(Seq[Tuple2[int, string]]{Tup2(1, "a"), Tup2(2, "b"), Tup2(3, "c")}))
 	assert.Equal(t, Tup2(Seq[int]{}, Seq[string]{}), UnZipSeq(Seq[Tuple2[int, string]]{}))

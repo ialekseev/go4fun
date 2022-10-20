@@ -216,6 +216,27 @@ func (seq Seq[A]) Reduce(op func(A, A) A) A {
 	return r
 }
 
+// Returns a new Sequence containing first n elements of this Sequence. Or the whole Sequence, if it has less than n elements. If n is negative, returns an empty Sequence.
+func (seq Seq[A]) Take(n int) Seq[A] {
+	if seq == nil {
+		return nil
+	}
+
+	take := seq.Length()
+	switch {
+	case n >= 0 && n < seq.Length():
+		take = n
+	case n < 0:
+		take = 0
+	}
+
+	r := EmptySeq[A](take)
+	for i := 0; i < take; i++ {
+		r = append(r, seq[i])
+	}
+	return r
+}
+
 // Converts this Sequence of Tuples into a Tuple of two Sequences.
 func UnZipSeq[A, B any](seq Seq[Tuple2[A, B]]) Tuple2[Seq[A], Seq[B]] {
 	if seq == nil {

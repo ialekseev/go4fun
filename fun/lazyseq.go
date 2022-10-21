@@ -172,7 +172,7 @@ func (iterator *combined2Iterator[A, B, C]) Reset() {
 
 //-------LazySeq--------------
 
-// Lazy Sequence evaluates elements only when they are needed (unlike the regular Sequence that does it eagerly).
+// Lazy Sequence iterates elements only when they are needed (unlike the regular Sequence that does it eagerly).
 // It has the same functions as Sequence but many of them are "Lazy" and would not cause any processing until that is needed.
 type LazySeq[A any] struct {
 	Iterator      Iterator[A]
@@ -384,6 +384,12 @@ func (lazySeq LazySeq[A]) Strict() Seq[A] {
 func (lazySeq LazySeq[A]) Take(n int) LazySeq[A] {
 	newIterator := filterIndexIterator[A]{lazySeq.Iterator.Copy(), func(i int) bool { return i < n }, 0}
 	return LazySeq[A]{&newIterator, lazySeq.KnownCapacity, lazySeq.NilUnderlying}
+}
+
+// Converts this Lazy Sequence into a materialized Sequence. An alias for 'Strict' method.
+// [Materializing action: iterates over the underlying Sequence]
+func (lazySeq LazySeq[A]) ToSeq() Seq[A] {
+	return lazySeq.Strict()
 }
 
 // Converts this Lazy Sequence of Tuples into a Tuple of two Lazy Sequences.

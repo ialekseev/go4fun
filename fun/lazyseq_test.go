@@ -208,6 +208,12 @@ func TestLazySeqTake(t *testing.T) {
 	assert.Nil(t, nilSeq[int]().Lazy().Take(2).Strict())
 }
 
+func TestLazySeqToSeq(t *testing.T) {
+	assert.Equal(t, Seq[int]{2, 4, 6, 8}, Seq[int]{2, 4, 6, 8}.Lazy().ToSeq())
+	assert.Equal(t, Seq[int]{}, Seq[int]{}.Lazy().ToSeq())
+	assert.Nil(t, nilSeq[int]().Lazy().Strict().Lazy().ToSeq())
+}
+
 func TestLazySeqUnZipLazySeq(t *testing.T) {
 	r := UnZipLazySeq(Seq[Tuple2[int, string]]{Tup2(1, "a"), Tup2(2, "b"), Tup2(3, "c")}.Lazy())
 	assert.Equal(t, Tup2(Seq[int]{1, 2, 3}, Seq[string]{"a", "b", "c"}), Tup2(r.a.Strict(), r.b.Strict()))

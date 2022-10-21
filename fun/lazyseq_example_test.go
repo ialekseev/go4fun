@@ -6,7 +6,7 @@ import (
 )
 
 func ExampleLazySeq_eg1() {
-	// Strict (Regular) Sequence eagerly evaluates its elements.
+	// Strict (Regular) Sequence eagerly iterates its elements on each operation.
 	// Below code calculates a result in multiple iterations:
 	r1 := Seq[int]{-2, -1, 0, 1, 2, 3, 4, 5, 6}.
 		Filter(func(a int) bool { return a > 0 }).
@@ -16,7 +16,7 @@ func ExampleLazySeq_eg1() {
 
 	fmt.Println(r1)
 
-	// Lazy Sequence evaluates elements only when they are needed.
+	// Lazy Sequence iterates elements only when they are needed.
 	// In this case, it's when the last materializing call happens (Reduce).
 	// Other calls (Filter, Map) are "lazy" and don't result in any computation.
 	// Below code calculates a result in 1 iteration:

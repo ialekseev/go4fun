@@ -43,3 +43,31 @@ func UnCurry3[A, B, C, D any](f func(A) func(B) func(C) D) func(A, B, C) D {
 		return f(a)(b)(c)
 	}
 }
+
+// Transforms a function of 2 arguments into a function of 1 tupled argument.
+func Tupled2[A, B, C any](f func(A, B) C) func(Tuple2[A, B]) C {
+	return func(t Tuple2[A, B]) C {
+		return f(t.a, t.b)
+	}
+}
+
+// Transforms a function of 3 arguments into a function of 1 tupled argument.
+func Tupled3[A, B, C, D any](f func(A, B, C) D) func(Tuple3[A, B, C]) D {
+	return func(t Tuple3[A, B, C]) D {
+		return f(t.a, t.b, t.c)
+	}
+}
+
+// Transforms a function of 1 tupled argument into a function of 2 arguments.
+func UnTupled2[A, B, C any](f func(Tuple2[A, B]) C) func(A, B) C {
+	return func(a A, b B) C {
+		return f(Tup2(a, b))
+	}
+}
+
+// Transforms a function of 1 tupled argument into a function of 3 arguments.
+func UnTupled3[A, B, C, D any](f func(Tuple3[A, B, C]) D) func(A, B, C) D {
+	return func(a A, b B, c C) D {
+		return f(Tup3(a, b, c))
+	}
+}

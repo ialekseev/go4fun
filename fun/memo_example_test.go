@@ -6,7 +6,7 @@ import (
 )
 
 func ExampleMemo1_eg1() {
-	// an expensive function (with 1 argument) is wrapped into a memo function of the same signature.
+	// an expensive function (with 1 argument) is wrapped into a memoized function of the same signature.
 	// it would cache results of function calls and return back a cached result for the same input, if requested again.
 	var memoF = Memo1(func(a int) string {
 		// expensive computation:
@@ -22,7 +22,7 @@ func ExampleMemo1_eg1() {
 }
 
 func ExampleMemo2_eg1() {
-	// an expensive function (with 2 arguments) is wrapped into a memo function of the same signature.
+	// an expensive function (with 2 arguments) is wrapped into a memoized function of the same signature.
 	// it would cache results of function calls and return back a cached result for the same inputs, if requested again.
 	var memoF = Memo2(func(a, b int) string {
 		// expensive computation:

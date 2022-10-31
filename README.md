@@ -271,9 +271,9 @@ fmt.Println(r)
 ```
 
 ## Memoization
-Memoization is an optimization technique where an expensive function is wrapped into a `Memo` function of the same signature. It would cache results of function calls and return back a cached result for the same input, if requested again.
+Memoization is an optimization technique where an expensive function is wrapped into a memoized `Memo` function of the same signature. It would cache results of function calls and return back a cached result for the same input, if requested again.
 ```go
-// an expensive function (with 1 argument) is wrapped into a memo function of the same signature.
+// an expensive function (with 1 argument) is wrapped into a memoized function of the same signature.
 var memoF = Memo1(func(a int) string {
 	// expensive computation:
 	time.Sleep(time.Millisecond * time.Duration(a))
@@ -287,7 +287,7 @@ fmt.Println(r)
 // Output: 2
 ```
 ```go
-// an expensive function (with 2 arguments) is wrapped into a memo function of the same signature.
+// an expensive function (with 2 arguments) is wrapped into a memoized function of the same signature.
 var memoF = Memo2(func(a, b int) string {
 	// expensive computation:
 	time.Sleep(time.Millisecond * time.Duration(a+b))

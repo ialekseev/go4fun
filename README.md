@@ -2,7 +2,7 @@ Go4Fun - GO for FUNctional programming
 ======================================
 ![build-test](https://github.com/ialekseev/go4fun/actions/workflows/main.yml/badge.svg)
 
-`Option`, `Sequence`, `Lazy Sequence`, `Future`, `Either`, `Tuple` types with familiar combinators found in other functional-first languages: `Map`, `FlatMap`, `Apply (Applicative)`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... alongside many other handy functions. And also: `Trampoline`, `Currying`, `Function Composition`...
+`Option`, `Sequence`, `Lazy Sequence`, `Future`, `Either`, `Tuple` types with familiar combinators found in other functional-first languages: `Map`, `FlatMap`, `Apply (Applicative)`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... alongside many other handy functions. And also: `Memoization`, `Trampoline`, `Currying`, `Function Composition`...
 
 # Examples
 - [Option](https://github.com/ialekseev/go4fun#option)
@@ -10,6 +10,7 @@ Go4Fun - GO for FUNctional programming
 - [Lazy Sequence](https://github.com/ialekseev/go4fun#lazy-sequence)
 - [Future](https://github.com/ialekseev/go4fun#future)
 - [Either](https://github.com/ialekseev/go4fun#either)
+- [Memoization](https://github.com/ialekseev/go4fun#memoization)
 - [Trampoline](https://github.com/ialekseev/go4fun#trampoline)
 - [Currying](https://github.com/ialekseev/go4fun#currying)
 - [Function Composition](https://github.com/ialekseev/go4fun#function-composition)
@@ -267,6 +268,37 @@ fmt.Println(r)
 r := Left[int, string](-1).ToOption()
 fmt.Println(r)
 // Output: None
+```
+
+## Memoization
+Memoization is an optimization technique where an expensive function is wrapped into a `Memo` function of the same signature. It would cache results of function calls and return back a cached result for the same input, if requested again.
+```go
+// an expensive function (with 1 argument) is wrapped into a memo function of the same signature.
+var memoF = Memo1(func(a int) string {
+	// expensive computation:
+	time.Sleep(time.Millisecond * time.Duration(a))
+	return fmt.Sprint(a)
+})
+
+r := memoF(2) // the first call is slow
+r = memoF(2)  // other calls are fast
+
+fmt.Println(r)
+// Output: 2
+```
+```go
+// an expensive function (with 2 arguments) is wrapped into a memo function of the same signature.
+var memoF = Memo2(func(a, b int) string {
+	// expensive computation:
+	time.Sleep(time.Millisecond * time.Duration(a+b))
+	return fmt.Sprint(a) + fmt.Sprint(b)
+})
+
+r := memoF(2, 2) // the first call is slow
+r = memoF(2, 2)  // other calls are fast
+
+fmt.Println(r)
+// Output: 22
 ```
 
 ## Trampoline

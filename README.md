@@ -2,7 +2,7 @@ Go4Fun - GO for FUNctional programming
 ======================================
 ![build-test](https://github.com/ialekseev/go4fun/actions/workflows/main.yml/badge.svg)
 
-`Option`, `Sequence`, `Lazy Sequence`, `Future`, `Either`, `Tuple` types with familiar combinators found in other functional-first languages: `Map`, `FlatMap`, `Apply (Applicative)`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... alongside many other handy functions. And also: `Memoization`, `Trampoline`, `Currying`, `Function Composition`...
+`Option`, `Sequence`, `Lazy Sequence`, `Future`, `Either`, `Tuple` types with familiar combinators found in other functional-first languages: `Map`, `FlatMap`, `Apply (Applicative)`, `Filter`, `Fold`, `Reduce`, `Zip`, `UnZip`... alongside many other handy functions. And also: `Memoization`, `Trampoline`, `Currying`, `Partial Application`, `Function Composition`...
 
 # Examples
 - [Option](https://github.com/ialekseev/go4fun#option)
@@ -13,6 +13,7 @@ Go4Fun - GO for FUNctional programming
 - [Memoization](https://github.com/ialekseev/go4fun#memoization)
 - [Trampoline](https://github.com/ialekseev/go4fun#trampoline)
 - [Currying](https://github.com/ialekseev/go4fun#currying)
+- [Partial Application](https://github.com/ialekseev/go4fun#partial-application)
 - [Function Composition](https://github.com/ialekseev/go4fun#function-composition)
 
 ## Option
@@ -356,6 +357,21 @@ r := unCurriedF(1, true, 5.5)
 
 fmt.Println(r)
 // Output: 1 true 5.5
+```
+
+## Partial Application
+Partial Application is a technique of applying a function to _some_ of its arguments. As a result of the partial application we get a function of the remaining arguments.
+```go
+f := func(a int, b bool, c float64) string {
+	return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+}
+
+// function `f` is applied only to the 1st and the 2nd argument.
+// resulting function `p` has only 1 remaining argument.
+p := Apply3Partial_1_2(f, 10, true)
+
+fmt.Println(p(5.5))
+// Output: 10 true 5.5
 ```
 
 ## Function Composition

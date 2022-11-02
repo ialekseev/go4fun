@@ -11,6 +11,8 @@ func ExampleApply3_eg1() {
 		return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
 	}
 
+	// function `f` is applied only to the 1st and the 2nd argument.
+	// resulting function `p` has only 1 remaining argument.
 	p := Apply3Partial_1_2(f, 10, true)
 
 	fmt.Println(p(5.5))

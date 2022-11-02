@@ -360,7 +360,7 @@ fmt.Println(r)
 ```
 
 ## Partial Application
-Partial Application is a technique of applying a function to _some_ of its arguments. As a result of the partial application we get a function of the remaining arguments.
+Partial application is a technique of applying a function to _some_ of its arguments. As a result of the partial application we get a function of the remaining arguments.
 ```go
 f := func(a int, b bool, c float64) string {
 	return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)

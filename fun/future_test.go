@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFutureApplyFuture1(t *testing.T) {
+func TestFuture_ApplyFuture1(t *testing.T) {
 	// given
 	f := FutureValue(func() int {
 		time.Sleep(time.Millisecond * 10)
@@ -28,7 +28,7 @@ func TestFutureApplyFuture1(t *testing.T) {
 	assert.Equal(t, "123456", r.Result())
 }
 
-func TestFutureApplyFuture2(t *testing.T) {
+func TestFuture_ApplyFuture2(t *testing.T) {
 	// given
 	f1 := FutureValue(func() int {
 		time.Sleep(time.Millisecond * 10)
@@ -53,7 +53,7 @@ func TestFutureApplyFuture2(t *testing.T) {
 	assert.Equal(t, "123 true", r.Result())
 }
 
-func TestFutureApplyFuture3(t *testing.T) {
+func TestFuture_ApplyFuture3(t *testing.T) {
 	// given
 	f1 := FutureValue(func() int {
 		time.Sleep(time.Millisecond * 10)
@@ -83,7 +83,7 @@ func TestFutureApplyFuture3(t *testing.T) {
 	assert.Equal(t, "123 true abc", r.Result())
 }
 
-func TestFutureFlatMap(t *testing.T) {
+func TestFuture_FlatMap(t *testing.T) {
 	//given
 	f := FutureValue(func() string {
 		time.Sleep(time.Millisecond * 10)
@@ -103,7 +103,7 @@ func TestFutureFlatMap(t *testing.T) {
 	assert.Equal(t, "abcdef", r.Result())
 }
 
-func TestFutureFlatMapFuture(t *testing.T) {
+func TestFuture_FlatMapFuture(t *testing.T) {
 	//given
 	f := FutureValue(func() int {
 		time.Sleep(time.Millisecond * 10)
@@ -123,7 +123,7 @@ func TestFutureFlatMapFuture(t *testing.T) {
 	assert.Equal(t, "123456", r.Result())
 }
 
-func TestFutureFutureValue(t *testing.T) {
+func TestFuture_FutureValue(t *testing.T) {
 	f := FutureValue(func() string {
 		time.Sleep(time.Millisecond * 10)
 		return "abc"
@@ -133,7 +133,7 @@ func TestFutureFutureValue(t *testing.T) {
 	assert.Equal(t, Some("abc"), *f.value)
 }
 
-func TestFutureIsCompleted(t *testing.T) {
+func TestFuture_IsCompleted(t *testing.T) {
 	f := FutureValue(func() string {
 		time.Sleep(time.Millisecond * 10)
 		return "abc"
@@ -143,7 +143,7 @@ func TestFutureIsCompleted(t *testing.T) {
 	assert.True(t, f.IsCompleted())
 }
 
-func TestFutureMap(t *testing.T) {
+func TestFuture_Map(t *testing.T) {
 	//given
 	f := FutureValue(func() string {
 		time.Sleep(time.Millisecond * 10)
@@ -156,7 +156,7 @@ func TestFutureMap(t *testing.T) {
 	assert.Equal(t, "abcdef", r.Result())
 }
 
-func TestFutureMapFuture(t *testing.T) {
+func TestFuture_MapFuture(t *testing.T) {
 	//given
 	f := FutureValue(func() int {
 		time.Sleep(time.Millisecond * 10)
@@ -169,7 +169,7 @@ func TestFutureMapFuture(t *testing.T) {
 	assert.Equal(t, "123456", r.Result())
 }
 
-func TestFutureOnComplete(t *testing.T) {
+func TestFuture_OnComplete(t *testing.T) {
 	//given
 	f := FutureValue(func() string {
 		time.Sleep(time.Millisecond * 10)
@@ -184,7 +184,7 @@ func TestFutureOnComplete(t *testing.T) {
 	assert.Equal(t, "abcdef", result)
 }
 
-func TestFutureResult(t *testing.T) {
+func TestFuture_Result(t *testing.T) {
 	//given
 	f := FutureValue(func() string {
 		time.Sleep(time.Millisecond * 50)
@@ -196,7 +196,7 @@ func TestFutureResult(t *testing.T) {
 	assert.Equal(t, "abc", r)
 }
 
-func TestFutureValue(t *testing.T) {
+func TestFuture_Value(t *testing.T) {
 	f := FutureValue(func() string {
 		time.Sleep(time.Millisecond * 20)
 		return "abc"

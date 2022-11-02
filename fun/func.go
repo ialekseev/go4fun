@@ -1,5 +1,10 @@
 package fun
 
+// Applies a 2-argument function `f` to 2 arguments.
+func Apply2[A, B, C any](f func(A, B) C, a A, b B) C {
+	return f(a, b)
+}
+
 // Partially applies a 2-argument function `f` to its 1st argument (A). Returns a function of 1 remaining argument (B).
 func Apply2Partial_1[A, B, C any](f func(A, B) C, a A) func(B) C {
 	return func(b B) C {
@@ -12,6 +17,11 @@ func Apply2Partial_2[A, B, C any](f func(A, B) C, b B) func(A) C {
 	return func(a A) C {
 		return f(a, b)
 	}
+}
+
+// Applies a 3-argument function `f` to 3 arguments.
+func Apply3[A, B, C, D any](f func(A, B, C) D, a A, b B, c C) D {
+	return f(a, b, c)
 }
 
 // Partially applies a 3-argument function `f` to its 1st argument (A). Returns a function of 2 remaining arguments (B, C).

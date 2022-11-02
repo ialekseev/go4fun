@@ -4,7 +4,18 @@ import (
 	"fmt"
 )
 
-// Example for: Compose2
+// Examples for: Apply3Partial, Compose2, Curry3, UnCurry3
+
+func ExampleApply3_eg1() {
+	f := func(a int, b bool, c float64) string {
+		return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+	}
+
+	p := Apply3Partial_1_2(f, 10, true)
+
+	fmt.Println(p(5.5))
+	// Output: 10 true 5.5
+}
 
 func ExampleCompose2_eg1() {
 	f := func(a int) string { return fmt.Sprint(a) }
@@ -15,8 +26,6 @@ func ExampleCompose2_eg1() {
 	fmt.Println(h(1) == g(f(1)))
 	// Output: true
 }
-
-// Examples for: Curry3, UnCurry3
 
 func ExampleCurry3_eg1() {
 	f := func(a int, b bool, c float64) string {

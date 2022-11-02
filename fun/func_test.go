@@ -7,6 +7,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestFunc_Apply2(t *testing.T) {
+	//given
+	f := func(a int, b bool) string {
+		return fmt.Sprint(a) + fmt.Sprint(b)
+	}
+	//when
+	r := Apply2(f, 10, true)
+	//then
+	assert.Equal(t, "10true", r)
+}
+
 func TestFunc_Apply2Partial_1(t *testing.T) {
 	//given
 	f := func(a int, b bool) string {
@@ -27,6 +38,17 @@ func TestFunc_Apply2Partial_2(t *testing.T) {
 	p := Apply2Partial_2(f, true)
 	//then
 	assert.Equal(t, f(10, true), p(10))
+}
+
+func TestFunc_Apply3(t *testing.T) {
+	//given
+	f := func(a int, b bool, c float64) string {
+		return fmt.Sprint(a) + " " + fmt.Sprint(b) + " " + fmt.Sprint(c)
+	}
+	//when
+	r := Apply3(f, 10, true, 5.5)
+	//then
+	assert.Equal(t, "10 true 5.5", r)
 }
 
 func TestFunc_Apply3Partial_1(t *testing.T) {
